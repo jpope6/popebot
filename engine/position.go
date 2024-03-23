@@ -48,7 +48,7 @@ var byteToPieceMap = map[byte]Piece{
 func (position *Position) SetPositionWithFEN(FENsquares string) {
 	// Initialize each piece bitboard based on the current byte
 	// of the FEN string
-	var index uint8 = 0
+	var index uint8 = 56
 	for i := 0; i < len(FENsquares); i++ {
 		byte := FENsquares[i]
 		switch byte {
@@ -60,7 +60,7 @@ func (position *Position) SetPositionWithFEN(FENsquares string) {
 			offset := uint8(byte - '0')
 			index += offset
 		case '/':
-			continue
+			index -= 16
 		}
 	}
 

@@ -1,11 +1,17 @@
 package main
 
 import (
-	"fmt"
 	"popebot/engine"
 )
 
+const (
+	startFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+	testFen  = "8/3k4/1n4q1/8/3B4/8/8/4K3 w - - 0 1"
+)
+
 func main() {
-	boardState := engine.InitBoardState("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
-	fmt.Printf("%b\n", boardState.CastleRights)
+	boardState := engine.InitBoardState(testFen)
+	engine.PrintBitboard(boardState.Position.AllPieces)
+
+	engine.PrintBitboard(engine.MaskBishopAttacks(engine.D4))
 }
