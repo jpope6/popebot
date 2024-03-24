@@ -10,8 +10,16 @@ const (
 )
 
 func main() {
-	boardState := engine.InitBoardState(testFen)
-	engine.PrintBitboard(boardState.Position.AllPieces)
+	// for i := uint8(0); i < 64; i++ {
+	// 	engine.PrintBitboard(engine.MaskBishopAttacks(i))
+	// }
 
-	engine.PrintBitboard(engine.MaskBishopAttacks(engine.D4))
+	var blockers engine.Bitboard
+	blockers.SetBit(engine.D7)
+	blockers.SetBit(engine.B4)
+	blockers.SetBit(engine.D2)
+	blockers.SetBit(engine.G4)
+
+	engine.PrintBitboard(blockers)
+	engine.PrintBitboard(engine.MaskRookAttacksWithBlockers(engine.D4, blockers))
 }

@@ -13,6 +13,17 @@ func (b *Bitboard) SetBit(square uint8) {
 	*b |= 1 << square
 }
 
+// Returns 1 if there is a 1 on the square bit
+// Returns 0 if there is a 0 on the square bit
+func (b *Bitboard) GetBit(square uint8) bool {
+	// Create a mask with a 1 on the square-indexed bit
+	var mask Bitboard
+	mask.SetBit(square)
+
+	// Use bitwise AND to check if the bit at 'square' position is set
+	return (*b & mask) != 0
+}
+
 func (b *Bitboard) PopBit(square int) {
 	*b &= ^(1 << square)
 }
