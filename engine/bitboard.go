@@ -2,6 +2,7 @@ package engine
 
 import (
 	"fmt"
+	"math/bits"
 )
 
 // Here is an example of what a 64-bit number looks like:
@@ -9,6 +10,7 @@ import (
 // When used to represent a chess state, this is called a bitboard
 type Bitboard uint64
 
+// Set the bit at the square index
 func (b *Bitboard) SetBit(square uint8) {
 	*b |= 1 << square
 }
@@ -20,14 +22,26 @@ func (b *Bitboard) GetBit(square uint8) bool {
 	var mask Bitboard
 	mask.SetBit(square)
 
-	// Use bitwise AND to check if the bit at 'square' position is set
+	// Use bitwise AND to check if the bit at square position is set
 	return (*b & mask) != 0
 }
 
-func (b *Bitboard) PopBit(square int) {
+// Clear the bit at the square index
+func (b *Bitboard) PopBit(square uint8) {
 	*b &= ^(1 << square)
 }
 
+// Returns the amount of 1 bits inside a bitboard
+func (b Bitboard) CountBits() uint8 {
+	return uint8(bits.OnesCount64(uint64(b)))
+}
+
+// Least Significant Bit is the RIGHT MOST 1 bit in a binary number
+func (b Bitboard) GetLsbIndex() uint8 {
+	return uint8(bits.TrailingZeros64(uint64(b)))
+}
+
+// Print the bitboard in a chess board
 func PrintBitboard(bb Bitboard) {
 	fmt.Printf("\n")
 
