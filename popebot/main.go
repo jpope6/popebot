@@ -9,7 +9,11 @@ const (
 	testFen  = "8/3k4/1n4q1/8/3B4/8/8/4K3 w - - 0 1"
 )
 
+func init() {
+	engine.InitTables()
+}
+
 func main() {
-	attackMask := engine.MaskRookAttacks(engine.A1)
+	var attackMask engine.Bitboard
 	engine.PrintBitboard(attackMask)
 }

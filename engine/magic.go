@@ -1,11 +1,30 @@
 package engine
 
-// Precalcate all possible attack sets on all squares,
-// for all possible sets of blockers (on the appropriate
-// rank/file or diagonals).
-// Store the attack sets in a hash table and look them up as needed.
+// Magic Bitboards is a multiply-right-shift hashing algorithm
+// to index an attack bitboard look-up table.
+//
+// A magic move-bitboard generation consists of four steps:
+//
+// 1. Mask the occupancy bits to form a key
+// 2. Multiply the key by a "magic number" to obtain an index mapping
+// 3. Right shift the index mapping by (64 - n) bits to create an
+//      index, when n is the number of bits in the index
+// 4. Use the index to map the pre-initialized move
+//
+//
+//                                         any consecutive
+// relevant occupancy                      combination of
+// rook a1, 12 bits                        the masked bits
+// . . . . . . . .     . . . . . . . .     5 6 B C D E F G]
+// 6 . . . . . . .     . . .some . . .     . . . .[1 2 3 4
+// 5 . . . . . . .     . . . . . . . .     . . . . . . . .
+// 4 . . . . . . .     . . .magic. . .     . . . . . . . .
+// 3 . . . . . . .  *  . . . . . . . .  =  . . garbage . .    >> (64-12)
+// 2 . . . . . . .     . . .bits . . .     . . . . . . . .
+// 1 . . . . . . .     . . . . . . . .     . . . . . . . .
+// . B C D E F G .     . . . . . . . .     . . . . . . . .
 
-var bishopMagics [64]uint64 = [64]uint64{
+var bishopMagics [64]Bitboard = [64]Bitboard{
 	0x40040844404084,
 	0x2004208a004208,
 	0x10190041080202,
@@ -72,7 +91,7 @@ var bishopMagics [64]uint64 = [64]uint64{
 	0x4010011029020020,
 }
 
-var rookMagics [64]uint64 = [64]uint64{
+var rookMagics [64]Bitboard = [64]Bitboard{
 	0x8a80104000800020,
 	0x140002000100040,
 	0x2801880a0017001,
@@ -139,13 +158,14 @@ var rookMagics [64]uint64 = [64]uint64{
 	0x1004081002402,
 }
 
-type MagicEntry struct {
-	Mask  Bitboard
-	Magic uint64
-	index uint8
+func getBishopMagicIndex(occupancy *Bitboard, square uint8) Bitboard {
+	key := (*occupancy * bishopMagics[square])
+	index := key >> (64 - bishopRelevantBits[square])
+	return index
 }
 
-func getMagicIndex(entry *MagicEntry, blockers Bitboard) {
-	blockers &= entry.Mask
-	// var key uint64 = (uint64(blockers) * bishopMagics[])
+func getRookMagicIndex(occupancy *Bitboard, square uint8) Bitboard {
+	key := (*occupancy * rookMagics[square])
+	index := key >> (64 - rookRelevantBits[square])
+	return index
 }

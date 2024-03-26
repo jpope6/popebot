@@ -24,8 +24,8 @@ const (
 	BlackQueenSide = 0x1 // 0001
 )
 
-// To represent the board we typically need one bitboard for each
-// piece-type and color - encapsulated inside a position structure.
+// To represent the board, we will store multiple bitboards
+// in a Position object
 //
 // Turn will be a true or false to represent whose turn it is
 // true = white to move

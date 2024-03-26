@@ -26,6 +26,13 @@ const (
 	NumRanks // Total number of ranks
 )
 
+// Look up tables for piece attacks
+var bishopMasks [64]Bitboard
+var bishopAttacks [64][512]Bitboard
+
+var rookMasks [64]Bitboard
+var rookAttacks [64][4096]Bitboard
+
 // Bishop relevant occupancy bit count for every square on board
 var bishopRelevantBits = [64]int{
 	6, 5, 5, 5, 5, 5, 5, 6,
@@ -50,11 +57,68 @@ var rookRelevantBits = [64]int{
 	12, 11, 11, 11, 11, 11, 11, 12,
 }
 
-// Look up tables for piece attacks
-var bishopAttacks [64][512]Bitboard
-var rookAttacks [64][4096]uint64
+func InitTables() {
+	initBishopTable()
+	initRookTable()
+}
 
-func MaskBishopAttacks(square uint8) Bitboard {
+func initBishopTable() {
+	for square := uint8(0); square < 64; square++ {
+		attackMask := maskBishopAttacks(square)
+		bitCount := attackMask.CountBits()
+		occupancyIndices := (1 << bitCount)
+
+		for i := 0; i < occupancyIndices; i++ {
+			occupancy := setOccupancy(i, attackMask)
+			magicIndex := getBishopMagicIndex(&occupancy, square)
+			bishopAttacks[square][magicIndex] = maskBishopAttacksWithBlockers(square, occupancy)
+		}
+	}
+}
+
+func initRookTable() {
+	for square := uint8(0); square < 64; square++ {
+		attackMask := maskRookAttacks(square)
+		bitCount := attackMask.CountBits()
+		occupancyIndices := (1 << bitCount)
+
+		for i := 0; i < occupancyIndices; i++ {
+			occupancy := setOccupancy(i, attackMask)
+			magicIndex := getRookMagicIndex(&occupancy, square)
+			rookAttacks[square][magicIndex] = maskRookAttacksWithBlockers(square, occupancy)
+		}
+	}
+}
+
+// SetOccupancy generates an occupancy map based on the provided index and attack mask.
+// It sets bits in the occupancy map corresponding to the set bits in the attack mask.
+func setOccupancy(index int, attackMask Bitboard) Bitboard {
+	// Initialize an empty occupancy map
+	var occupancy Bitboard
+
+	// Determine the number of set bits in the attack mask
+	bitCount := int(attackMask.CountBits())
+
+	// Iterate over the range of set bits in the attack mask
+	for i := 0; i < bitCount; i++ {
+		// Get the index of the least significant set bit in the attack mask
+		square := attackMask.GetLsbIndex()
+
+		// Clear the least significant set bit in the attack mask
+		attackMask.PopBit(square)
+
+		// Check if the corresponding bit is on the board
+		if index&(1<<i) != 0 {
+			// Set the corresponding bit in the occupancy map
+			occupancy.SetBit(square)
+		}
+	}
+
+	// Return the generated occupancy map
+	return occupancy
+}
+
+func maskBishopAttacks(square uint8) Bitboard {
 	var attacks Bitboard
 
 	var rank uint8 = GetRank(square)
@@ -83,7 +147,7 @@ func MaskBishopAttacks(square uint8) Bitboard {
 	return attacks
 }
 
-func MaskBishopAttacksWithBlockers(square uint8, blockers Bitboard) Bitboard {
+func maskBishopAttacksWithBlockers(square uint8, blockers Bitboard) Bitboard {
 	var attacks Bitboard
 
 	var rank uint8 = GetRank(square)
@@ -132,7 +196,7 @@ func MaskBishopAttacksWithBlockers(square uint8, blockers Bitboard) Bitboard {
 	return attacks
 }
 
-func MaskRookAttacks(square uint8) Bitboard {
+func maskRookAttacks(square uint8) Bitboard {
 	var attacks Bitboard
 
 	var rank uint8 = GetRank(square)
@@ -161,7 +225,7 @@ func MaskRookAttacks(square uint8) Bitboard {
 	return attacks
 }
 
-func MaskRookAttacksWithBlockers(square uint8, blockers Bitboard) Bitboard {
+func maskRookAttacksWithBlockers(square uint8, blockers Bitboard) Bitboard {
 	var attacks Bitboard
 
 	var rank uint8 = GetRank(square)
@@ -208,32 +272,4 @@ func MaskRookAttacksWithBlockers(square uint8, blockers Bitboard) Bitboard {
 	}
 
 	return attacks
-}
-
-// SetOccupancy generates an occupancy map based on the provided index and attack mask.
-// It sets bits in the occupancy map corresponding to the set bits in the attack mask.
-func SetOccupancy(index int, attackMask Bitboard) Bitboard {
-	// Initialize an empty occupancy map
-	var occupancy Bitboard
-
-	// Determine the number of set bits in the attack mask
-	bitCount := int(attackMask.CountBits())
-
-	// Iterate over the range of set bits in the attack mask
-	for i := 0; i < bitCount; i++ {
-		// Get the index of the least significant set bit in the attack mask
-		square := attackMask.GetLsbIndex()
-
-		// Clear the least significant set bit in the attack mask
-		attackMask.PopBit(square)
-
-		// Check if the corresponding bit is on the board
-		if index&(1<<i) != 0 {
-			// Set the corresponding bit in the occupancy map
-			occupancy.SetBit(square)
-		}
-	}
-
-	// Return the generated occupancy map
-	return occupancy
 }
