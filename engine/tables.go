@@ -1,90 +1,64 @@
 package engine
 
-// File constants
-const (
-	FileA = iota
-	FileB
-	FileC
-	FileD
-	FileE
-	FileF
-	FileG
-	FileH
-	NumFiles // Total number of files
-)
-
-// Rank constants
-const (
-	Rank1 = iota
-	Rank2
-	Rank3
-	Rank4
-	Rank5
-	Rank6
-	Rank7
-	Rank8
-	NumRanks // Total number of ranks
-)
-
 // Look up tables for piece attacks
+var pawnAttacks [2][64]Bitboard
+
 var bishopMasks [64]Bitboard
 var bishopAttacks [64][512]Bitboard
 
 var rookMasks [64]Bitboard
 var rookAttacks [64][4096]Bitboard
 
-// Bishop relevant occupancy bit count for every square on board
-var bishopRelevantBits = [64]int{
-	6, 5, 5, 5, 5, 5, 5, 6,
-	5, 5, 5, 5, 5, 5, 5, 5,
-	5, 5, 7, 7, 7, 7, 5, 5,
-	5, 5, 7, 9, 9, 7, 5, 5,
-	5, 5, 7, 9, 9, 7, 5, 5,
-	5, 5, 7, 7, 7, 7, 5, 5,
-	5, 5, 5, 5, 5, 5, 5, 5,
-	6, 5, 5, 5, 5, 5, 5, 6,
-}
-
-// Rook relevant occupancy bit count for every square on board
-var rookRelevantBits = [64]int{
-	12, 11, 11, 11, 11, 11, 11, 12,
-	11, 10, 10, 10, 10, 10, 10, 11,
-	11, 10, 10, 10, 10, 10, 10, 11,
-	11, 10, 10, 10, 10, 10, 10, 11,
-	11, 10, 10, 10, 10, 10, 10, 11,
-	11, 10, 10, 10, 10, 10, 10, 11,
-	11, 10, 10, 10, 10, 10, 10, 11,
-	12, 11, 11, 11, 11, 11, 11, 12,
-}
-
 func InitTables() {
 	initBishopTable()
 	initRookTable()
 }
 
+// Initialize bishopsMasks and bishopAttacks
 func initBishopTable() {
+	// Loop through each square on the board
 	for square := uint8(0); square < 64; square++ {
+		// Get the attack mask for the current square
 		attackMask := maskBishopAttacks(square)
-		bitCount := attackMask.CountBits()
-		occupancyIndices := (1 << bitCount)
 
+		// Set the attack mask for the current square
+		bishopMasks[square] = attackMask
+
+		// Calculate the number of posssible occupancy varitiations
+		// based on the relevant bits
+		occupancyIndices := (1 << bishopRelevantBits[square])
+
+		// Loop through each possible occupancy variation
 		for i := 0; i < occupancyIndices; i++ {
 			occupancy := setOccupancy(i, attackMask)
 			magicIndex := getBishopMagicIndex(&occupancy, square)
+
+			// Store the attack mask for the current occupancy and square
 			bishopAttacks[square][magicIndex] = maskBishopAttacksWithBlockers(square, occupancy)
 		}
 	}
 }
 
+// Initialize rookMasks and rookAttacks
 func initRookTable() {
+	// Loop through each square on the board
 	for square := uint8(0); square < 64; square++ {
+		// Get the attack mask for the current square
 		attackMask := maskRookAttacks(square)
-		bitCount := attackMask.CountBits()
-		occupancyIndices := (1 << bitCount)
 
+		// Set the attack mask for the current square
+		rookMasks[square] = attackMask
+
+		// Calculate the number of posssible occupancy varitiations
+		// based on the relevant bits
+		occupancyIndices := (1 << rookRelevantBits[square])
+
+		// Loop through each possible occupancy variation
 		for i := 0; i < occupancyIndices; i++ {
 			occupancy := setOccupancy(i, attackMask)
 			magicIndex := getRookMagicIndex(&occupancy, square)
+
+			// Store the attack mask for the current occupancy and square
 			rookAttacks[square][magicIndex] = maskRookAttacksWithBlockers(square, occupancy)
 		}
 	}
@@ -116,6 +90,40 @@ func setOccupancy(index int, attackMask Bitboard) Bitboard {
 
 	// Return the generated occupancy map
 	return occupancy
+}
+
+func MaskPawnAttack(side uint8, square uint8) Bitboard {
+	var attacks Bitboard
+
+	var board Bitboard = 1 << square
+
+	if side == White { // White Pawn
+		// Check if pawn is not on File A
+		if board&NotFileA != 0 {
+			// North West
+			attacks.SetBit(square + 7)
+		}
+
+		// Check if pawn is not on File H
+		if board&NotFileH != 0 {
+			// North East
+			attacks.SetBit(square + 9)
+		}
+	} else { // Black pawn
+		// Check if pawn is not on File H
+		if board&NotFileH != 0 {
+			// South West
+			attacks.SetBit(square - 7)
+		}
+
+		// Check if pawn is not on File A
+		if board&NotFileA != 0 {
+			// South East
+			attacks.SetBit(square - 9)
+		}
+	}
+
+	return attacks
 }
 
 func maskBishopAttacks(square uint8) Bitboard {

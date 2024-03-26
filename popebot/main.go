@@ -14,6 +14,7 @@ func init() {
 }
 
 func main() {
-	var attackMask engine.Bitboard
-	engine.PrintBitboard(attackMask)
+	var bb engine.Bitboard
+	bb = engine.MaskPawnAttack(engine.Black, engine.H4)
+	engine.PrintBitboard(bb)
 }

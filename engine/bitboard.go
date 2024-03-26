@@ -1,7 +1,6 @@
 package engine
 
 import (
-	"fmt"
 	"math/bits"
 )
 
@@ -20,7 +19,6 @@ func (b *Bitboard) SetBit(square uint8) {
 func (b *Bitboard) GetBit(square uint8) bool {
 	// Create a mask with a 1 on the square-indexed bit
 	var mask Bitboard
-	mask.SetBit(square)
 
 	// Use bitwise AND to check if the bit at square position is set
 	return (*b & mask) != 0
@@ -39,28 +37,4 @@ func (b Bitboard) CountBits() uint8 {
 // Least Significant Bit is the RIGHT MOST 1 bit in a binary number
 func (b Bitboard) GetLsbIndex() uint8 {
 	return uint8(bits.TrailingZeros64(uint64(b)))
-}
-
-// Print the bitboard in a chess board
-func PrintBitboard(bb Bitboard) {
-	fmt.Printf("\n")
-
-	for r := 7; r >= 0; r-- {
-		for f := 0; f < 8; f++ {
-			square := r*8 + f
-
-			if f == 0 {
-				fmt.Printf("  %d ", r+1)
-			}
-
-			if bb&(1<<square) != 0 {
-				fmt.Printf("X ")
-			} else {
-				fmt.Printf(". ")
-			}
-		}
-		fmt.Printf("\n")
-	}
-
-	fmt.Printf("\n    a b c d e f g h \n \n")
 }

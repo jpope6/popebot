@@ -1,19 +1,5 @@
 package engine
 
-const (
-	// Piece Types
-	Pawn   uint8 = 0
-	Knight uint8 = 1
-	Bishop uint8 = 2
-	Rook   uint8 = 3
-	Queen  uint8 = 4
-	King   uint8 = 5
-
-	// Color Types
-	White uint8 = 0
-	Black uint8 = 1
-)
-
 type Position struct {
 	Pieces         [2][6]Bitboard
 	AllWhitePieces Bitboard
