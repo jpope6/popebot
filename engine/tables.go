@@ -1,17 +1,40 @@
 package engine
 
 // Look up tables for piece attacks
-var pawnAttacks [2][64]Bitboard
+var pawnAttacks [2][64]Bitboard // [color][square]
 
-var bishopMasks [64]Bitboard
-var bishopAttacks [64][512]Bitboard
+var knightAttacks [64]Bitboard // [square]
 
-var rookMasks [64]Bitboard
-var rookAttacks [64][4096]Bitboard
+var bishopMasks [64]Bitboard        // [square]
+var bishopAttacks [64][512]Bitboard // [square][occupancy]
+
+var rookMasks [64]Bitboard         // [square]
+var rookAttacks [64][4096]Bitboard // [square][occupancy]
 
 func InitTables() {
+	initPawnTable()
+	initKnightTable()
 	initBishopTable()
 	initRookTable()
+}
+
+// Initialize pawnAttacks
+func initPawnTable() {
+	// Loop through each square on the board
+	for square := uint8(0); square < 64; square++ {
+		// Set the square for White and Black attacks
+		pawnAttacks[White][square] = maskPawnAttacks(White, square)
+		pawnAttacks[Black][square] = maskPawnAttacks(Black, square)
+	}
+}
+
+// Initialize knightAttacks
+func initKnightTable() {
+	// Loop through each square on the board
+	for square := uint8(0); square < 64; square++ {
+		// Set the square for Knight attacks
+		knightAttacks[square] = maskKnightAttacks(square)
+	}
 }
 
 // Initialize bishopsMasks and bishopAttacks
@@ -92,7 +115,7 @@ func setOccupancy(index int, attackMask Bitboard) Bitboard {
 	return occupancy
 }
 
-func MaskPawnAttack(side uint8, square uint8) Bitboard {
+func maskPawnAttacks(side uint8, square uint8) Bitboard {
 	var attacks Bitboard
 
 	var board Bitboard = 1 << square
@@ -121,6 +144,34 @@ func MaskPawnAttack(side uint8, square uint8) Bitboard {
 			// South East
 			attacks.SetBit(square - 9)
 		}
+	}
+
+	return attacks
+}
+
+func maskKnightAttacks(square uint8) Bitboard {
+	var attacks Bitboard
+
+	var board Bitboard = 1 << square
+
+	if board&NotFileA != 0 {
+		attacks.SetBit(square + 15)
+		attacks.SetBit(square - 17)
+	}
+
+	if board&NotFileH != 0 {
+		attacks.SetBit(square + 17)
+		attacks.SetBit(square - 15)
+	}
+
+	if board&NotFileAB != 0 {
+		attacks.SetBit(square + 6)
+		attacks.SetBit(square - 10)
+	}
+
+	if board&NotFileHG != 0 {
+		attacks.SetBit(square + 10)
+		attacks.SetBit(square - 6)
 	}
 
 	return attacks

@@ -15,6 +15,5 @@ func init() {
 
 func main() {
 	var bb engine.Bitboard
-	bb = engine.MaskPawnAttack(engine.Black, engine.H4)
 	engine.PrintBitboard(bb)
 }
