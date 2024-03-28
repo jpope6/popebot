@@ -1,8 +1,6 @@
 package engine
 
 const (
-	startFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-
 	// Constants for mapping board squares to numbers.
 	A1, B1, C1, D1, E1, F1, G1, H1 = 0, 1, 2, 3, 4, 5, 6, 7
 	A2, B2, C2, D2, E2, F2, G2, H2 = 8, 9, 10, 11, 12, 13, 14, 15
@@ -14,25 +12,25 @@ const (
 	A8, B8, C8, D8, E8, F8, G8, H8 = 56, 57, 58, 59, 60, 61, 62, 63
 
 	// File constants
-	FileA = iota
-	FileB
-	FileC
-	FileD
-	FileE
-	FileF
-	FileG
-	FileH
+	FileA    = 0
+	FileB    = 1
+	FileC    = 2
+	FileD    = 3
+	FileE    = 4
+	FileF    = 5
+	FileG    = 6
+	FileH    = 7
 	NumFiles // Total number of files
 
 	// Rank constants
-	Rank1 = iota
-	Rank2
-	Rank3
-	Rank4
-	Rank5
-	Rank6
-	Rank7
-	Rank8
+	Rank1    = 0
+	Rank2    = 1
+	Rank3    = 2
+	Rank4    = 3
+	Rank5    = 4
+	Rank6    = 5
+	Rank7    = 6
+	Rank8    = 7
 	NumRanks // Total number of ranks
 
 	// Edge of board constants

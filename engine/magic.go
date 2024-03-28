@@ -26,10 +26,10 @@ package engine
 
 // getBishopMagicIndex computes the magic index for a bishop given the
 // occupancy bitboard and the square.
-func getBishopMagicIndex(occupancy *Bitboard, square uint8) Bitboard {
+func getBishopMagicIndex(occupancy Bitboard, square uint8) Bitboard {
 	// Calculate the key by multiplying the occupancy with the
 	// precomputed magic number for the given square
-	key := (*occupancy * bishopMagics[square])
+	key := (occupancy * bishopMagics[square])
 
 	// Calculate the index by shifting the key to the
 	// right by the difference between 64 and the number
@@ -62,10 +62,10 @@ func getBishopAttacks(occupancy Bitboard, square uint8) Bitboard {
 
 // getRookMagicIndex computes the magic index for a rook given the
 // occupancy bitboard and the square.
-func getRookMagicIndex(occupancy *Bitboard, square uint8) Bitboard {
+func getRookMagicIndex(occupancy Bitboard, square uint8) Bitboard {
 	// Calculate the key by multiplying the occupancy with the
 	// precomputed magic number for the given square
-	key := (*occupancy * rookMagics[square])
+	key := (occupancy * rookMagics[square])
 
 	// Calculate the index by shifting the key to the
 	// right by the difference between 64 and the number

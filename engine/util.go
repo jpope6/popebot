@@ -44,11 +44,11 @@ func PrintBitboard(bb Bitboard) {
 func PrintBoard(boardState *BoardState) {
 	fmt.Printf("\n")
 
-	for r := int8(7); r >= 0; r-- {
+	for r := uint8(7); r >= 0; r-- {
 		fmt.Printf("%d ", r+1)
 
 		for f := uint8(0); f < 8; f++ {
-			square := GetSquare(uint8(r), f)
+			square := GetSquare(r, f)
 			var pieceFound bool
 
 			for color, bbColor := range boardState.Position.Pieces {
