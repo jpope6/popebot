@@ -1,6 +1,8 @@
 package engine
 
-import "fmt"
+import (
+	"fmt"
+)
 
 func GetRank(square uint8) uint8 {
 	return square >> 3
@@ -36,4 +38,95 @@ func PrintBitboard(bb Bitboard) {
 	}
 
 	fmt.Printf("\n    a b c d e f g h \n \n")
+}
+
+// Prints the full board state of the chess game
+func PrintBoard(boardState *BoardState) {
+	fmt.Printf("\n")
+
+	for r := int8(7); r >= 0; r-- {
+		fmt.Printf("%d ", r+1)
+
+		for f := uint8(0); f < 8; f++ {
+			square := GetSquare(uint8(r), f)
+			var pieceFound bool
+
+			for color, bbColor := range boardState.Position.Pieces {
+				for piece, bbPiece := range bbColor {
+					if bbPiece.GetBit(square) {
+						fmt.Printf("%c ", pieceSymbols[color][piece])
+						pieceFound = true
+						break
+					}
+				}
+				if pieceFound {
+					break
+				}
+			}
+
+			if !pieceFound {
+				fmt.Printf(". ")
+			}
+		}
+		fmt.Printf("\n")
+	}
+
+	fmt.Printf("\n  a b c d e f g h\n\n")
+	fmt.Printf("Turn:              %s\n", colorToString(boardState.Turn))
+	fmt.Printf("Castle Rights:     %s\n", castleRightsToString(boardState.CastleRights))
+	fmt.Printf("En Passant Square: %s\n", EnPassantToString(boardState.EpSquare))
+}
+
+// Function to convert square index to file and rank notation
+func squareToString(square uint8) string {
+	file := 'a' + rune(square%8)
+	rank := '1' + rune(square/8)
+	return string(file) + string(rank)
+}
+
+// Function to convert color constant to string representation
+func colorToString(color uint8) string {
+	if color == White {
+		return "White"
+	}
+	return "Black"
+}
+
+func castleRightsToString(castleRights uint8) string {
+	var castleRightsStr string
+
+	if (castleRights & WhiteKingSide) != 0 {
+		castleRightsStr += "K"
+	} else {
+		castleRightsStr += "-"
+	}
+	if (castleRights & WhiteQueenSide) != 0 {
+		castleRightsStr += "Q"
+	} else {
+		castleRightsStr += "-"
+	}
+	if (castleRights & BlackKingSide) != 0 {
+		castleRightsStr += "k"
+	} else {
+		castleRightsStr += "-"
+	}
+	if (castleRights & BlackQueenSide) != 0 {
+		castleRightsStr += "q"
+	} else {
+		castleRightsStr += "-"
+	}
+
+	return castleRightsStr
+}
+
+func EnPassantToString(epSquare uint8) string {
+	var epSquareStr string
+
+	if epSquare != NoEpSquare {
+		epSquareStr = squareToString(epSquare)
+	} else {
+		epSquareStr = "None"
+	}
+
+	return epSquareStr
 }

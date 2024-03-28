@@ -1,6 +1,7 @@
 package engine
 
 import (
+	"strconv"
 	"strings"
 )
 
@@ -17,29 +18,33 @@ import (
 // 1 = castle rights
 type BoardState struct {
 	Position     Position
-	Turn         bool
+	Turn         uint8
 	CastleRights uint8
 	EpSquare     uint8
+	halfMove     uint8
+	fullMove     uint16
 }
 
 // Initialize board state with a FEN string
-func InitBoardState(FEN string) *BoardState {
-	bs := BoardState{}
-
+func (bs *BoardState) InitBoardState(FEN string) {
 	// Split up the FEN string
 	FENfields := strings.Fields(FEN)
 	squares := FENfields[0]
 	turn := FENfields[1]
 	castleRights := FENfields[2]
-	// epSquare := FENfields[3]
-	// halfmove := fields[4]
-	// fullmove := fields[5]
+	epSquare := FENfields[3]
+	halfmove := FENfields[4]
+	fullmove := FENfields[5]
 
 	// Initialize Position
 	bs.Position.SetPositionWithFEN(squares)
 
 	// Initialize Turn
-	bs.Turn = turn == "w"
+	if turn == "w" {
+		bs.Turn = White
+	} else {
+		bs.Turn = Black
+	}
 
 	// Initialize CastleRights
 	var rights uint8 = 0x0 // 0000
@@ -58,7 +63,20 @@ func InitBoardState(FEN string) *BoardState {
 	bs.CastleRights = rights
 
 	// Initialize epSquare
-	// bs.EpSquare = epSquare
+	if epSquare == "-" {
+		bs.EpSquare = NoEpSquare // No en passant square
+	} else {
+		// Convert the epSquare string to a uint8 value
+		epFile := epSquare[0] - 'a' // Convert file letter to index
+		epRank, _ := strconv.Atoi(string(epSquare[1]))
+		bs.EpSquare = uint8(epRank-1)*8 + uint8(epFile)
+	}
 
-	return &bs
+	// Initialize half move counter
+	halfMoveInt, _ := strconv.ParseUint(halfmove, 10, 16)
+	bs.halfMove = uint8(halfMoveInt)
+
+	// Initialize full move counter
+	fullMoveInt, _ := strconv.ParseUint(fullmove, 10, 16)
+	bs.fullMove = uint16(fullMoveInt)
 }

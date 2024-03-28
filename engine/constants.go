@@ -58,7 +58,15 @@ const (
 	WhiteQueenSide = 0x4 // 0100
 	BlackKingSide  = 0x2 // 0010
 	BlackQueenSide = 0x1 // 0001
+
+	// NoEpSquare will be num squares + 1
+	NoEpSquare = 65
 )
+
+var pieceSymbols = [2][6]rune{
+	{'\u265F', '\u265E', '\u265D', '\u265C', '\u265B', '\u265A'}, // White
+	{'\u2659', '\u2658', '\u2657', '\u2656', '\u2655', '\u2654'}, // Black
+}
 
 // Bishop relevant occupancy bit count for every square on board
 var bishopRelevantBits = [64]int{

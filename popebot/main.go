@@ -14,6 +14,7 @@ func init() {
 }
 
 func main() {
-	var bb engine.Bitboard
-	engine.PrintBitboard(bb)
+	var bs engine.BoardState
+	bs.InitBoardState(startFen)
+	engine.PrintBoard(&bs)
 }

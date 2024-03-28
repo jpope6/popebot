@@ -18,7 +18,7 @@ func (b *Bitboard) SetBit(square uint8) {
 // Returns 0 if there is a 0 on the square bit
 func (b *Bitboard) GetBit(square uint8) bool {
 	// Create a mask with a 1 on the square-indexed bit
-	var mask Bitboard
+	var mask Bitboard = 1 << square
 
 	// Use bitwise AND to check if the bit at square position is set
 	return (*b & mask) != 0
