@@ -38,6 +38,8 @@ const (
 	NotFileH  Bitboard = 0x7F7F7F7F7F7F7F7F
 	NotFileHG Bitboard = 0x3F3F3F3F3F3F3F3F
 	NotFileAB Bitboard = 0xFCFCFCFCFCFCFCFC
+	NotRank1  Bitboard = 0xFFFFFFFFFFFFFF00
+	NotRank8  Bitboard = 0x00FFFFFFFFFFFFFF
 
 	// Piece Types
 	Pawn   uint8 = 0

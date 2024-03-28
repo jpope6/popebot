@@ -44,11 +44,11 @@ func PrintBitboard(bb Bitboard) {
 func PrintBoard(boardState *BoardState) {
 	fmt.Printf("\n")
 
-	for r := uint8(7); r >= 0; r-- {
+	for r := 7; r >= 0; r-- {
 		fmt.Printf("%d ", r+1)
 
-		for f := uint8(0); f < 8; f++ {
-			square := GetSquare(r, f)
+		for f := 0; f < 8; f++ {
+			square := GetSquare(uint8(r), uint8(f))
 			var pieceFound bool
 
 			for color, bbColor := range boardState.Position.Pieces {
@@ -75,6 +75,30 @@ func PrintBoard(boardState *BoardState) {
 	fmt.Printf("Turn:              %s\n", colorToString(boardState.Turn))
 	fmt.Printf("Castle Rights:     %s\n", castleRightsToString(boardState.CastleRights))
 	fmt.Printf("En Passant Square: %s\n", EnPassantToString(boardState.EpSquare))
+}
+
+func PrintAttackedSquares(bs *BoardState) {
+
+	fmt.Printf("\n")
+
+	for r := 7; r >= 0; r-- {
+		for f := 0; f < 8; f++ {
+			square := uint8(r*8 + f)
+
+			if f == 0 {
+				fmt.Printf("  %d ", r+1)
+			}
+
+			if isSquareAttacked(square, bs) {
+				fmt.Printf("X ")
+			} else {
+				fmt.Printf(". ")
+			}
+		}
+		fmt.Printf("\n")
+	}
+
+	fmt.Printf("\n    a b c d e f g h \n \n")
 }
 
 // Function to convert square index to file and rank notation

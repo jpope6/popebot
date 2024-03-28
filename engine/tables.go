@@ -11,11 +11,14 @@ var bishopAttacks [64][512]Bitboard // [square][occupancy]
 var rookMasks [64]Bitboard         // [square]
 var rookAttacks [64][4096]Bitboard // [square][occupancy]
 
+var kingAttacks [64]Bitboard // [square]
+
 func InitTables() {
 	initPawnTable()
 	initKnightTable()
 	initBishopTable()
 	initRookTable()
+	initKingTable()
 }
 
 // Initialize pawnAttacks
@@ -222,7 +225,7 @@ func initRookTable() {
 			magicIndex := getRookMagicIndex(occupancy, square)
 
 			// Store the attack mask for the current occupancy and square
-			rookAttacks[square][magicIndex] = MaskRookAttacksWithBlockers(square, occupancy)
+			rookAttacks[square][magicIndex] = maskRookAttacksWithBlockers(square, occupancy)
 		}
 	}
 }
@@ -256,7 +259,7 @@ func maskRookAttacks(square uint8) Bitboard {
 	return attacks
 }
 
-func MaskRookAttacksWithBlockers(square uint8, blockers Bitboard) Bitboard {
+func maskRookAttacksWithBlockers(square uint8, blockers Bitboard) Bitboard {
 	var attacks Bitboard
 
 	var rank uint8 = GetRank(square)
@@ -305,8 +308,48 @@ func MaskRookAttacksWithBlockers(square uint8, blockers Bitboard) Bitboard {
 	return attacks
 }
 
-func MaskQueenAttacks(square uint8, blockers Bitboard) Bitboard {
+func getQueenAttacks(blockers Bitboard, square uint8) Bitboard {
 	return getBishopAttacks(blockers, square) | getRookAttacks(blockers, square)
+}
+
+func initKingTable() {
+	// Loop through each square on the board
+	for square := uint8(0); square < 64; square++ {
+		// Get the attack mask for the current square
+		attackMask := maskKingAttacks(square)
+
+		// Set the attack mask for the current square
+		kingAttacks[square] = attackMask
+	}
+}
+
+func maskKingAttacks(square uint8) Bitboard {
+	var attacks Bitboard
+
+	var board Bitboard
+	board.SetBit(square)
+
+	if board&NotFileA != 0 {
+		attacks.SetBit(square + 7)
+		attacks.SetBit(square - 9)
+		attacks.SetBit(square - 1)
+	}
+
+	if board&NotFileH != 0 {
+		attacks.SetBit(square - 7)
+		attacks.SetBit(square + 9)
+		attacks.SetBit(square + 1)
+	}
+
+	if board&NotRank1 != 0 {
+		attacks.SetBit(square - 8)
+	}
+
+	if board&NotRank8 != 0 {
+		attacks.SetBit(square + 8)
+	}
+
+	return attacks
 }
 
 // SetOccupancy generates an occupancy map based on the provided index and attack mask.
