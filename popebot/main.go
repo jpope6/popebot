@@ -6,7 +6,7 @@ import (
 
 const (
 	startFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-	testFen  = "r3k2r/8/8/8/8/8/4r3/2RNK1R1 b KQkq - 0 1"
+	testFen  = "8/8/2P1r3/8/3n4/1b3B2/8/8 b - - 0 1"
 )
 
 func init() {
