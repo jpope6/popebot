@@ -6,7 +6,8 @@ func GenerateMoves(bs *BoardState) {
 	// generatePawnMoves(bs)
 	// generateCastlingMoves(bs)
 	// generateKnightMoves(bs)
-	generateBishopMoves(bs)
+	// generateBishopMoves(bs)
+	generateRookMoves(bs)
 }
 
 func generatePawnMoves(bs *BoardState) {
@@ -176,6 +177,54 @@ func generateBishopMoves(bs *BoardState) {
 				fmt.Printf("Bishop Capture: %s, %s\n", squareToString(sourceSquare), squareToString(targetSquare))
 			} else {
 				fmt.Printf("Bishop Move: %s, %s\n", squareToString(sourceSquare), squareToString(targetSquare))
+			}
+
+			attacks.PopBit(targetSquare)
+		}
+
+		bb.PopBit(sourceSquare)
+	}
+}
+
+func generateRookMoves(bs *BoardState) {
+	var sourceSquare uint8
+	var targetSquare uint8
+	var bb Bitboard
+	var attacks Bitboard
+	var availableMoves Bitboard
+	var otherPieces Bitboard
+
+	if bs.Turn == White {
+		bb = bs.Position.Pieces[White][Rook]
+
+		// NOT White Pieces
+		// availableMoves = Empty sqaures and squares with Black piece
+		availableMoves = ^bs.Position.AllWhitePieces
+
+		otherPieces = bs.Position.AllBlackPieces
+	} else { // Black
+		bb = bs.Position.Pieces[Black][Rook]
+
+		// NOT Black Pieces
+		// availableMoves = Empty sqaures and squares with White piece
+		availableMoves = ^bs.Position.AllBlackPieces
+
+		otherPieces = bs.Position.AllWhitePieces
+	}
+
+	for bb != 0 {
+		sourceSquare = bb.GetLsbIndex()
+
+		attacks = getRookAttacks(bs.Position.AllPieces, sourceSquare) & availableMoves
+
+		for attacks != 0 {
+			targetSquare = attacks.GetLsbIndex()
+
+			// Capture moves
+			if otherPieces.GetBit(targetSquare) {
+				fmt.Printf("Rook Capture: %s, %s\n", squareToString(sourceSquare), squareToString(targetSquare))
+			} else {
+				fmt.Printf("Rook Move: %s, %s\n", squareToString(sourceSquare), squareToString(targetSquare))
 			}
 
 			attacks.PopBit(targetSquare)
