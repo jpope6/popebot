@@ -16,6 +16,22 @@ func GetSquare(rank uint8, file uint8) uint8 {
 	return (rank << 3) + file
 }
 
+func isPromotionSquare(turn uint8, square uint8) bool {
+	if turn == White {
+		return square >= A7 && square <= H7
+	} else {
+		return square >= A2 && square <= H2
+	}
+}
+
+func isDoublePushSquare(turn uint8, square uint8) bool {
+	if turn == White {
+		return square >= A2 && square <= H2
+	} else {
+		return square >= A7 && square <= H7
+	}
+}
+
 // Print the bitboard in a chess board
 func PrintBitboard(bb Bitboard) {
 	fmt.Printf("\n")

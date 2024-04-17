@@ -68,7 +68,7 @@ var pieceSymbols = [2][6]rune{
 	{'\u2659', '\u2658', '\u2657', '\u2656', '\u2655', '\u2654'}, // Black
 }
 
-// Bishop relevant occupancy bit count for every square on board
+// Bishop number of attacked squares for every square on board
 var bishopRelevantBits = [64]int{
 	6, 5, 5, 5, 5, 5, 5, 6,
 	5, 5, 5, 5, 5, 5, 5, 5,
@@ -80,7 +80,7 @@ var bishopRelevantBits = [64]int{
 	6, 5, 5, 5, 5, 5, 5, 6,
 }
 
-// Rook relevant occupancy bit count for every square on board
+// Rook number of attacked squares for every square on board
 var rookRelevantBits = [64]int{
 	12, 11, 11, 11, 11, 11, 11, 12,
 	11, 10, 10, 10, 10, 10, 10, 11,

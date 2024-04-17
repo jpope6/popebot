@@ -6,7 +6,7 @@ import (
 
 const (
 	startFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-	testFen  = "8/8/8/3k4/8/3K4/8/8 b - - 0 1"
+	testFen  = "2k5/8/8/8/2pP4/8/8/2K5 b - d3 0 1"
 )
 
 func init() {
@@ -17,5 +17,6 @@ func main() {
 	var bs engine.BoardState
 	bs.InitBoardState(testFen)
 	engine.PrintBoard(&bs)
-	engine.PrintAttackedSquares(&bs)
+
+	engine.GeneratePawnMoves(&bs)
 }
