@@ -216,3 +216,22 @@ func EnPassantToString(epSquare uint8) string {
 
 	return epSquareStr
 }
+
+func pieceToString(pieceType uint8) string {
+	switch pieceType {
+	case Pawn:
+		return "Pawn"
+	case Knight:
+		return "Knight"
+	case Bishop:
+		return "Bishop"
+	case Rook:
+		return "Rook"
+	case Queen:
+		return "Queen"
+	case King:
+		return "King"
+	}
+
+	return ""
+}
