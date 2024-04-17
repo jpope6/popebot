@@ -54,7 +54,7 @@ const (
 	Black uint8 = 1
 
 	// Hexadecimal number that corresponds to casteling rights
-	WhiteKingSide  = 0xF // 1000
+	WhiteKingSide  = 0x8 // 1000
 	WhiteQueenSide = 0x4 // 0100
 	BlackKingSide  = 0x2 // 0010
 	BlackQueenSide = 0x1 // 0001

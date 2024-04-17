@@ -32,6 +32,52 @@ func isDoublePushSquare(turn uint8, square uint8) bool {
 	}
 }
 
+func canCastle(bs *BoardState, side uint8) bool {
+	switch side {
+
+	case WhiteKingSide:
+		return bs.CastleRights&WhiteKingSide != 0 &&
+			!bs.Position.AllPieces.GetBit(F1) &&
+			!bs.Position.AllPieces.GetBit(G1) &&
+			!isSquareAttacked(bs, E1) &&
+			!isSquareAttacked(bs, F1) &&
+			!isSquareAttacked(bs, G1)
+
+	case WhiteQueenSide:
+		return bs.CastleRights&WhiteQueenSide != 0 &&
+			!bs.Position.AllPieces.GetBit(D1) &&
+			!bs.Position.AllPieces.GetBit(C1) &&
+			!bs.Position.AllPieces.GetBit(B1) &&
+			!isSquareAttacked(bs, E1) &&
+			!isSquareAttacked(bs, D1) &&
+			!isSquareAttacked(bs, C1)
+
+	case BlackKingSide:
+		return bs.CastleRights&BlackKingSide != 0 &&
+			!bs.Position.AllPieces.GetBit(F8) &&
+			!bs.Position.AllPieces.GetBit(G8) &&
+			!isSquareAttacked(bs, E8) &&
+			!isSquareAttacked(bs, F8) &&
+			!isSquareAttacked(bs, G8)
+
+	case BlackQueenSide:
+		return bs.CastleRights&WhiteQueenSide != 0 &&
+			!bs.Position.AllPieces.GetBit(D8) &&
+			!bs.Position.AllPieces.GetBit(C8) &&
+			!bs.Position.AllPieces.GetBit(B8) &&
+			!isSquareAttacked(bs, E8) &&
+			!isSquareAttacked(bs, D8) &&
+			!isSquareAttacked(bs, C8)
+
+	}
+
+	return false
+}
+
+func isKingInCheck(bs *BoardState, kingSquare uint8) bool {
+	return isSquareAttacked(bs, kingSquare)
+}
+
 // Print the bitboard in a chess board
 func PrintBitboard(bb Bitboard) {
 	fmt.Printf("\n")
@@ -105,7 +151,7 @@ func PrintAttackedSquares(bs *BoardState) {
 				fmt.Printf("  %d ", r+1)
 			}
 
-			if isSquareAttacked(square, bs) {
+			if isSquareAttacked(bs, square) {
 				fmt.Printf("X ")
 			} else {
 				fmt.Printf(". ")

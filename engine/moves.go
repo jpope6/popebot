@@ -2,10 +2,12 @@ package engine
 
 import "fmt"
 
-func generateMoves(bs *BoardState) {
+func GenerateMoves(bs *BoardState) {
+	// generatePawnMoves(bs)
+	generateCastlingMoves(bs)
 }
 
-func GeneratePawnMoves(bs *BoardState) {
+func generatePawnMoves(bs *BoardState) {
 	var sourceSquare uint8
 	var targetSquare uint8
 	var bb Bitboard
@@ -85,13 +87,64 @@ func handlePawnCaptures(bs *BoardState, sourceSquare, targetSquare uint8) {
 	}
 }
 
+func generateCastlingMoves(bs *BoardState) {
+	switch bs.Turn {
+	case White:
+		// King side
+		if canCastle(bs, WhiteKingSide) {
+			fmt.Printf("Castling Move: E1, G1\n")
+		}
+
+		// Queen side
+		if canCastle(bs, WhiteQueenSide) {
+			fmt.Printf("Castling Move: E1, C1\n")
+		}
+
+	case Black:
+		// King side
+		if canCastle(bs, BlackKingSide) {
+			fmt.Printf("Castling Move: E1, G1\n")
+		}
+
+		// Queen side
+		if canCastle(bs, BlackQueenSide) {
+			fmt.Printf("Castling Move: E8, C8\n")
+		}
+	}
+}
+
 // Returns true if the square is currently attacked, else False
 // NOTE: we do not check Queens because bishop and rook essentially does it already
-func isSquareAttacked(square uint8, bs *BoardState) bool {
+func isSquareAttacked(bs *BoardState, square uint8) bool {
 	bb := &bs.Position.Pieces
 
 	switch bs.Turn {
 	case White:
+		if pawnAttacks[White][square]&bb[Black][Pawn] != 0 {
+			return true
+		}
+
+		// Attacked by Black Knight
+		if knightAttacks[square]&bb[Black][Knight] != 0 {
+			return true
+		}
+
+		// Attacked by Black Bishop
+		if getBishopAttacks(bs.Position.AllPieces, square)&bb[Black][Bishop] != 0 {
+			return true
+		}
+
+		// Attacked by Black Rook
+		if getRookAttacks(bs.Position.AllPieces, square)&bb[Black][Rook] != 0 {
+			return true
+		}
+
+		// Attacked by Black King
+		if kingAttacks[square]&bb[Black][King] != 0 {
+			return true
+		}
+
+	case Black:
 		// Attacked by White Pawns
 		if pawnAttacks[Black][square]&bb[White][Pawn] != 0 {
 			return true
@@ -117,30 +170,6 @@ func isSquareAttacked(square uint8, bs *BoardState) bool {
 			return true
 		}
 
-	case Black:
-		if pawnAttacks[White][square]&bb[Black][Pawn] != 0 {
-			return true
-		}
-
-		// Attacked by Black Knight
-		if knightAttacks[square]&bb[Black][Knight] != 0 {
-			return true
-		}
-
-		// Attacked by Black Bishop
-		if getBishopAttacks(bs.Position.AllPieces, square)&bb[Black][Bishop] != 0 {
-			return true
-		}
-
-		// Attacked by Black Rook
-		if getRookAttacks(bs.Position.AllPieces, square)&bb[Black][Rook] != 0 {
-			return true
-		}
-
-		// Attacked by Black King
-		if kingAttacks[square]&bb[Black][King] != 0 {
-			return true
-		}
 	}
 
 	return false
