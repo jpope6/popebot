@@ -2,7 +2,7 @@ package engine
 
 import "fmt"
 
-func GenerateMoves(bs *BoardState) {
+func GenerateAllMoves(bs *BoardState) {
 	// generatePawnMoves(bs)
 	// generateMoves(bs, Knight)
 	// generateMoves(bs, Bishop)

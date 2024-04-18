@@ -18,5 +18,5 @@ func main() {
 	bs.InitBoardState(testFen)
 	engine.PrintBoard(&bs)
 
-	engine.GenerateMoves(&bs)
+	engine.GenerateAllMoves(&bs)
 }
