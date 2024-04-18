@@ -21,6 +21,24 @@ func InitTables() {
 	initKingTable()
 }
 
+// Return all moves based on current board state, piece type, and source square
+func getMoves(bs *BoardState, pieceType uint8, sourceSquare uint8) Bitboard {
+	switch pieceType {
+	case Knight:
+		return knightAttacks[sourceSquare]
+	case Bishop:
+		return getBishopAttacks(bs.Position.AllPieces, sourceSquare)
+	case Rook:
+		return getRookAttacks(bs.Position.AllPieces, sourceSquare)
+	case Queen:
+		return getQueenAttacks(bs.Position.AllPieces, sourceSquare)
+	case King:
+		return kingAttacks[sourceSquare]
+	}
+
+	return 0
+}
+
 // Initialize pawnAttacks
 func initPawnTable() {
 	// Loop through each square on the board
