@@ -172,10 +172,14 @@ func squareToString(square uint8) string {
 
 // Function to convert color constant to string representation
 func colorToString(color uint8) string {
-	if color == White {
+	switch color {
+	case White:
 		return "White"
+	case Black:
+		return "Black"
 	}
-	return "Black"
+
+	return ""
 }
 
 func castleRightsToString(castleRights uint8) string {
@@ -217,6 +221,25 @@ func EnPassantToString(epSquare uint8) string {
 	return epSquareStr
 }
 
+func pieceToUint8(piece Piece) uint8 {
+	if piece.Type == NoPiece {
+		return NoPiece
+	}
+
+	return (piece.Color * 5) + piece.Type
+}
+
+func pieceUint8ToString(piece uint8) string {
+	if piece > 11 {
+		return "None"
+	}
+
+	pieceColor := piece / 6
+	pieceType := piece % 6
+
+	return colorToString(pieceColor) + " " + pieceToString(pieceType)
+}
+
 func pieceToString(pieceType uint8) string {
 	switch pieceType {
 	case Pawn:
@@ -235,3 +258,4 @@ func pieceToString(pieceType uint8) string {
 
 	return ""
 }
+

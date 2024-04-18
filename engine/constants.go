@@ -53,6 +53,23 @@ const (
 	White uint8 = 0
 	Black uint8 = 1
 
+	// More Piece Types
+	P uint8 = 0
+	N uint8 = 1
+	B uint8 = 2
+	R uint8 = 3
+	Q uint8 = 4
+	K uint8 = 5
+	p uint8 = 6
+	n uint8 = 7
+	b uint8 = 8
+	r uint8 = 9
+	q uint8 = 10
+	k uint8 = 11
+
+	NoColor uint8 = 2
+	NoPiece uint8 = 12
+
 	// Hexadecimal number that corresponds to casteling rights
 	WhiteKingSide  = 0x8 // 1000
 	WhiteQueenSide = 0x4 // 0100
@@ -61,6 +78,23 @@ const (
 
 	// NoEpSquare will be num squares + 1
 	NoEpSquare = 65
+
+	// Encoding move constants
+	SourceSquareHex = 0x3F
+	TargetSquareHex = 0xFC0
+	PieceHex        = 0xF000
+	PromotedHex     = 0xF0000
+	CaptureHex      = 0x100000
+	DoublePushHex   = 0x200000
+	EnPassantHex    = 0x400000
+	CastleHex       = 0x800000
+
+	// Flags
+	NoFlag         = 0x0 // 0000
+	CaptureFlag    = 0x1 // 0001
+	DoublePushFlag = 0x2 // 0010
+	EnPassantFlag  = 0x4 // 0100
+	CastleFlag     = 0x8 // 1000
 )
 
 var pieceSymbols = [2][6]rune{

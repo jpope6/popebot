@@ -2,6 +2,24 @@ package engine
 
 import "fmt"
 
+type Moves struct {
+	MoveList [256]EncodedMove
+	Count    int
+}
+
+func (moves *Moves) addMove(move EncodedMove) {
+	moves.MoveList[moves.Count] = move
+	moves.Count++
+}
+
+func (moves *Moves) printMoveList() {
+	for i := 0; i < moves.Count; i++ {
+		moves.MoveList[i].printUciMove()
+	}
+
+  fmt.Printf("Total number of moves: %d\n", moves.Count)
+}
+
 func GenerateAllMoves(bs *BoardState) {
 	// generatePawnMoves(bs)
 	// generateMoves(bs, Knight)
@@ -9,6 +27,20 @@ func GenerateAllMoves(bs *BoardState) {
 	// generateMoves(bs, Rook)
 	// generateMoves(bs, King)
 	// generateCastlingMoves(bs)
+
+	move := Move{
+		E2, E4,
+		P,
+		Q,
+		NoFlag, NoFlag, EnPassantFlag, NoFlag,
+	}
+
+	encodedMove := move.encodeMove()
+
+  moves := Moves{}
+
+  moves.addMove(encodedMove)
+  moves.printMoveList()
 }
 
 func generatePawnMoves(bs *BoardState) {
