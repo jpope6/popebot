@@ -1,10 +1,37 @@
 package engine
 
-import "fmt"
+import (
+	"bufio"
+	"fmt"
+	"os"
+)
 
 type Moves struct {
 	MoveList [256]EncodedMove
 	Count    int
+}
+
+func (moves *Moves) Test(bs *BoardState) {
+	// Loop over generated moves
+	for moveCount := 0; moveCount < moves.Count; moveCount++ {
+		// Init move
+		move := moves.MoveList[moveCount]
+
+		// Preserve board state
+		boardStateCopy := bs.copy()
+
+		// Make move
+		bs.makeMove(move, AllMoves)
+		PrintBoard(bs)
+		fmt.Println("Press Enter to continue...")
+		bufio.NewReader(os.Stdin).ReadBytes('\n')
+
+		// Take back
+		bs.restore(boardStateCopy)
+		PrintBoard(bs)
+		fmt.Println("Press Enter to continue...")
+		bufio.NewReader(os.Stdin).ReadBytes('\n')
+	}
 }
 
 func (moves *Moves) addMove(
@@ -40,7 +67,7 @@ func (moves *Moves) printMoveList() {
 	fmt.Printf("Total number of moves: %d\n", moves.Count)
 }
 
-func GenerateAllMoves(bs *BoardState) {
+func GenerateAllMoves(bs *BoardState) *Moves {
 	var moves Moves = Moves{}
 
 	moves.generatePawnMoves(bs)
@@ -52,6 +79,8 @@ func GenerateAllMoves(bs *BoardState) {
 	moves.generateCastlingMoves(bs)
 
 	moves.printMoveList()
+
+	return &moves
 }
 
 func (moves *Moves) generatePawnMoves(bs *BoardState) {

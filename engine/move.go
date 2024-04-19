@@ -48,19 +48,19 @@ func (move EncodedMove) getPromotedPiece() uint8 {
 	return uint8(move & PromotedHex >> 16)
 }
 
-func (move EncodedMove) getCaptureFlag() bool {
+func (move EncodedMove) isCapture() bool {
 	return (move & CaptureHex) != 0
 }
 
-func (move EncodedMove) getDoublePushFlag() bool {
+func (move EncodedMove) isDoublePush() bool {
 	return (move & DoublePushHex) != 0
 }
 
-func (move EncodedMove) getEnPassantFlag() bool {
+func (move EncodedMove) isEnPassant() bool {
 	return (move & EnPassantHex) != 0
 }
 
-func (move EncodedMove) getCastleFlag() bool {
+func (move EncodedMove) isCastle() bool {
 	return (move & CastleHex) != 0
 }
 

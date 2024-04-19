@@ -96,6 +96,10 @@ const (
 	DoublePushFlag = 0x2 // 0010
 	EnPassantFlag  = 0x4 // 0100
 	CastleFlag     = 0x8 // 1000
+
+	// For the make move function
+	AllMoves     uint8 = 0
+	CaptureMoves uint8 = 1
 )
 
 var pieceSymbols = [2][6]rune{

@@ -27,7 +27,9 @@ type BoardState struct {
 
 // Initialize board state with a FEN string
 func (bs *BoardState) InitBoardState(FEN string) {
-	// Split up the FEN string
+	// Reset the board state
+	bs.reset()
+
 	FENfields := strings.Fields(FEN)
 	squares := FENfields[0]
 	turn := FENfields[1]
@@ -79,4 +81,74 @@ func (bs *BoardState) InitBoardState(FEN string) {
 	// Initialize full move counter
 	fullMoveInt, _ := strconv.ParseUint(fullmove, 10, 16)
 	bs.fullMove = uint16(fullMoveInt)
+}
+
+// Make move takes an encoded move and a move flag (quiet vs capture)
+// and will make the move on a copy of the board
+func (bs *BoardState) makeMove(move EncodedMove, moveFlag uint8) {
+	if moveFlag == AllMoves || move.isCapture() {
+		// copyBs := bs.copy()
+
+		source := move.getSourceSquare()
+		target := move.getTargetSquare()
+		piece := move.getPiece()
+		// promoted := move.getPromotedPiece()
+		// capture := move.getCaptureFlag()
+		// double := move.getDoublePushFlag()
+		// enPassant := move.getEnPassantFlag()
+		// castle := move.getCastleFlag()
+
+		// Make the move
+		pieceColor := piece / 6
+		pieceType := piece % 6
+		bs.Position.Pieces[pieceColor][pieceType].PopBit(source)
+		bs.Position.Pieces[pieceColor][pieceType].SetBit(target)
+
+		if move.isCapture() {
+			var start uint8
+			var end uint8
+
+			switch bs.Turn {
+			case White:
+				start = p
+				end = k
+			case Black:
+				start = P
+				end = K
+			}
+
+			for capPiece := start; capPiece < end; capPiece++ {
+				capColor := capPiece / 6
+				capType := capPiece % 6
+
+				// If there is a piece on target square, get rid of it
+				if bs.Position.Pieces[capColor][capType].GetBit(target) {
+					bs.Position.Pieces[capColor][capType].PopBit(target)
+					break
+				}
+			}
+		}
+	}
+}
+
+func (bs *BoardState) copy() *BoardState {
+	var copyBs *BoardState = &BoardState{
+		Position:     bs.Position,
+		Turn:         bs.Turn,
+		CastleRights: bs.CastleRights,
+		EpSquare:     bs.EpSquare,
+		halfMove:     bs.halfMove,
+		fullMove:     bs.fullMove,
+	}
+
+	return copyBs
+}
+
+func (bs *BoardState) restore(other *BoardState) {
+	*bs = *other
+}
+
+// Reset the Board State to a blank Board State
+func (bs *BoardState) reset() {
+	*bs = BoardState{}
 }
