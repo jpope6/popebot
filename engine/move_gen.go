@@ -318,6 +318,11 @@ func isSquareAttacked(bs *BoardState, square uint8) bool {
 			return true
 		}
 
+		// Attacked by Black Queen
+		if getQueenAttacks(bs.Position.AllPieces, square)&bb[Black][Queen] != 0 {
+			return true
+		}
+
 		// Attacked by Black King
 		if kingAttacks[square]&bb[Black][King] != 0 {
 			return true
@@ -341,6 +346,11 @@ func isSquareAttacked(bs *BoardState, square uint8) bool {
 
 		// Attacked by White Rook
 		if getRookAttacks(bs.Position.AllPieces, square)&bb[White][Rook] != 0 {
+			return true
+		}
+
+		// Attacked by White Queen
+		if getQueenAttacks(bs.Position.AllPieces, square)&bb[White][Queen] != 0 {
 			return true
 		}
 
