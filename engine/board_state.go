@@ -94,7 +94,7 @@ func (bs *BoardState) makeMove(move EncodedMove, moveFlag uint8) {
 		piece := move.getPiece()
 		promotedPiece := move.getPromotedPiece()
 		capture := move.isCapture()
-		// double := move.getDoublePushFlag()
+		doublePush := move.isDoublePush()
 		enPassant := move.isEnPassant()
 		// castle := move.getCastleFlag()
 
@@ -119,6 +119,10 @@ func (bs *BoardState) makeMove(move EncodedMove, moveFlag uint8) {
 
 		// Reset En Passnt square
 		bs.EpSquare = NoSquare
+
+		if doublePush {
+			bs.handleDoublePush(target)
+		}
 	}
 }
 
@@ -177,6 +181,14 @@ func (bs *BoardState) handleEnPassant(target uint8) {
 		bs.Position.Pieces[Black][Pawn].PopBit(target - 8)
 	} else {
 		bs.Position.Pieces[White][Pawn].PopBit(target + 8)
+	}
+}
+
+func (bs *BoardState) handleDoublePush(target uint8) {
+	if bs.Turn == White {
+		bs.EpSquare = target - 8
+	} else {
+		bs.EpSquare = target + 8
 	}
 }
 
