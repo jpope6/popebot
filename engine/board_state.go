@@ -66,7 +66,7 @@ func (bs *BoardState) InitBoardState(FEN string) {
 
 	// Initialize epSquare
 	if epSquare == "-" {
-		bs.EpSquare = NoEpSquare // No en passant square
+		bs.EpSquare = NoSquare // No en passant square
 	} else {
 		// Convert the epSquare string to a uint8 value
 		epFile := epSquare[0] - 'a' // Convert file letter to index
@@ -92,43 +92,71 @@ func (bs *BoardState) makeMove(move EncodedMove, moveFlag uint8) {
 		source := move.getSourceSquare()
 		target := move.getTargetSquare()
 		piece := move.getPiece()
-		// promoted := move.getPromotedPiece()
-		// capture := move.getCaptureFlag()
+		promotedPiece := move.getPromotedPiece()
+		capture := move.isCapture()
 		// double := move.getDoublePushFlag()
-		// enPassant := move.getEnPassantFlag()
+		enPassant := move.isEnPassant()
 		// castle := move.getCastleFlag()
 
-		// Make the move
 		pieceColor := piece / 6
 		pieceType := piece % 6
+
+		// Make the move
 		bs.Position.Pieces[pieceColor][pieceType].PopBit(source)
 		bs.Position.Pieces[pieceColor][pieceType].SetBit(target)
 
-		if move.isCapture() {
-			var start uint8
-			var end uint8
+		if capture {
+			bs.handleCapture(target)
+		}
 
-			switch bs.Turn {
-			case White:
-				start = p
-				end = k
-			case Black:
-				start = P
-				end = K
-			}
+		if promotedPiece != NoPiece {
+			bs.handlePromotion(piece, promotedPiece, target)
+		}
 
-			for capPiece := start; capPiece < end; capPiece++ {
-				capColor := capPiece / 6
-				capType := capPiece % 6
+		if enPassant {
+			bs.handleEnPassant(target)
+		}
 
-				// If there is a piece on target square, get rid of it
-				if bs.Position.Pieces[capColor][capType].GetBit(target) {
-					bs.Position.Pieces[capColor][capType].PopBit(target)
-					break
-				}
-			}
+		// Reset En Passnt square
+		bs.EpSquare = NoSquare
+	}
+}
+
+// handleCapture will remove the captured piece from it's
+// respective bitboard at the target square
+func (bs *BoardState) handleCapture(target uint8) {
+	var start uint8
+	var end uint8
+
+	switch bs.Turn {
+	case White:
+		start = p
+		end = k
+	case Black:
+		start = P
+		end = K
+	}
+
+	for piece := start; piece < end; piece++ {
+		pieceColor := piece / 6
+		pieceType := piece % 6
+
+		// If there is a piece on target square, get rid of it
+		if bs.Position.Pieces[pieceColor][pieceType].GetBit(target) {
+			bs.Position.Pieces[pieceColor][pieceType].PopBit(target)
+			break
 		}
 	}
+}
+
+func (bs *BoardState) handlePromotion(piece, promotedPiece, target uint8) {
+	pieceColor := piece / 6
+	pieceType := piece % 6
+	promotedColor := promotedPiece / 6
+	promotedType := promotedPiece % 6
+
+	bs.Position.Pieces[pieceColor][pieceType].PopBit(target)
+	bs.Position.Pieces[promotedColor][promotedType].SetBit(target)
 }
 
 func (bs *BoardState) copy() *BoardState {
@@ -142,6 +170,14 @@ func (bs *BoardState) copy() *BoardState {
 	}
 
 	return copyBs
+}
+
+func (bs *BoardState) handleEnPassant(target uint8) {
+	if bs.Turn == White {
+		bs.Position.Pieces[Black][Pawn].PopBit(target - 8)
+	} else {
+		bs.Position.Pieces[White][Pawn].PopBit(target + 8)
+	}
 }
 
 func (bs *BoardState) restore(other *BoardState) {

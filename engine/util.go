@@ -212,7 +212,7 @@ func castleRightsToString(castleRights uint8) string {
 func EnPassantToString(epSquare uint8) string {
 	var epSquareStr string
 
-	if epSquare != NoEpSquare {
+	if epSquare != NoSquare {
 		epSquareStr = squareToString(epSquare)
 	} else {
 		epSquareStr = "None"

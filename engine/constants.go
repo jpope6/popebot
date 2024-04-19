@@ -78,7 +78,7 @@ const (
 	BlackQueenSide = 0x1 // 0001
 
 	// NoEpSquare will be num squares + 1
-	NoEpSquare = 65
+	NoSquare = 65
 
 	// Encoding move constants
 	SourceSquareHex = 0x3F

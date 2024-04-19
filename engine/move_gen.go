@@ -182,7 +182,7 @@ func handlePawnCaptures(
 	}
 
 	// TODO: Might be able to move to to outside of loop in GeneratePawnMoves
-	if bs.EpSquare != NoEpSquare {
+	if bs.EpSquare != NoSquare {
 		epAttacks := pawnAttacks[bs.Turn][source] & (1 << bs.EpSquare)
 
 		if epAttacks != 0 {
