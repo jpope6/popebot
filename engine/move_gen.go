@@ -21,7 +21,9 @@ func (moves *Moves) Test(bs *BoardState) {
 		boardStateCopy := bs.copy()
 
 		// Make move
-		bs.makeMove(move, AllMoves)
+		if !bs.makeMove(move, AllMoves) {
+			continue
+		}
 		PrintBoard(bs)
 		fmt.Println("Press Enter to continue...")
 		bufio.NewReader(os.Stdin).ReadBytes('\n')
