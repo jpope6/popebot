@@ -86,56 +86,60 @@ func (bs *BoardState) InitBoardState(FEN string) {
 // Make move takes an encoded move and a move flag (quiet vs capture)
 // and will make the move on a copy of the board
 func (bs *BoardState) makeMove(move EncodedMove, moveFlag uint8) bool {
-	if moveFlag == AllMoves || move.isCapture() {
-		copyBs := bs.copy()
-
-		source := move.getSourceSquare()
-		target := move.getTargetSquare()
-		piece := move.getPiece()
-		promotedPiece := move.getPromotedPiece()
-		capture := move.isCapture()
-		doublePush := move.isDoublePush()
-		enPassant := move.isEnPassant()
-		castle := move.isCastle()
-
-		pieceColor := piece / 6
-		pieceType := piece % 6
-
-		// Make the move
-		bs.Position.Pieces[pieceColor][pieceType].PopBit(source)
-		bs.Position.Pieces[pieceColor][pieceType].SetBit(target)
-
-		if capture {
-			bs.handleCapture(target)
-		}
-
-		if promotedPiece != NoPiece {
-			bs.handlePromotion(piece, promotedPiece, target)
-		}
-
-		if enPassant {
-			bs.handleEnPassant(target)
-		}
-
-		// Reset En Passnt square
-		bs.EpSquare = NoSquare
-
-		if doublePush {
-			bs.handleDoublePush(target)
-		}
-
-		if castle {
-			bs.handleCastle(target)
-		}
-
-		bs.updateCastleRights(source, target)
-		bs.updateBitboards()
-
-		if bs.isKingInCheck() {
-			bs.restore(copyBs)
-			return false
-		}
+	if moveFlag != AllMoves && !move.isCapture() {
+		return false
 	}
+
+	copyBs := bs.copy()
+
+	source := move.getSourceSquare()
+	target := move.getTargetSquare()
+	piece := move.getPiece()
+	promotedPiece := move.getPromotedPiece()
+	capture := move.isCapture()
+	doublePush := move.isDoublePush()
+	enPassant := move.isEnPassant()
+	castle := move.isCastle()
+
+	pieceColor := piece / 6
+	pieceType := piece % 6
+
+	// Make the move
+	bs.Position.Pieces[pieceColor][pieceType].PopBit(source)
+	bs.Position.Pieces[pieceColor][pieceType].SetBit(target)
+
+	if capture {
+		bs.handleCapture(target)
+	}
+
+	if promotedPiece != NoPiece {
+		bs.handlePromotion(piece, promotedPiece, target)
+	}
+
+	if enPassant {
+		bs.handleEnPassant(target)
+	}
+
+	// Reset En Passnt square
+	bs.EpSquare = NoSquare
+
+	if doublePush {
+		bs.handleDoublePush(target)
+	}
+
+	if castle {
+		bs.handleCastle(target)
+	}
+
+	bs.updateCastleRights(source, target)
+	bs.updateBitboards()
+
+	if bs.isKingInCheck() {
+		bs.restore(copyBs)
+		return false
+	}
+
+	bs.Turn ^= 1
 
 	return true
 }
@@ -232,7 +236,7 @@ func (bs *BoardState) updateBitboards() {
 	}
 
 	// Black Pieces
-	for piece := P; piece <= K; piece++ {
+	for piece := p; piece <= k; piece++ {
 		pieceColor := piece / 6
 		pieceType := piece % 6
 		bs.Position.AllBlackPieces |= bs.Position.Pieces[pieceColor][pieceType]

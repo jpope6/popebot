@@ -40,8 +40,7 @@ func canCastle(bs *BoardState, side uint8) bool {
 			!bs.Position.AllPieces.GetBit(F1) &&
 			!bs.Position.AllPieces.GetBit(G1) &&
 			!isSquareAttacked(bs, E1) &&
-			!isSquareAttacked(bs, F1) &&
-			!isSquareAttacked(bs, G1)
+			!isSquareAttacked(bs, F1)
 
 	case WhiteQueenSide:
 		return bs.CastleRights&WhiteQueenSide != 0 &&
@@ -49,26 +48,22 @@ func canCastle(bs *BoardState, side uint8) bool {
 			!bs.Position.AllPieces.GetBit(C1) &&
 			!bs.Position.AllPieces.GetBit(B1) &&
 			!isSquareAttacked(bs, E1) &&
-			!isSquareAttacked(bs, D1) &&
-			!isSquareAttacked(bs, C1)
+			!isSquareAttacked(bs, D1)
 
 	case BlackKingSide:
 		return bs.CastleRights&BlackKingSide != 0 &&
 			!bs.Position.AllPieces.GetBit(F8) &&
 			!bs.Position.AllPieces.GetBit(G8) &&
 			!isSquareAttacked(bs, E8) &&
-			!isSquareAttacked(bs, F8) &&
-			!isSquareAttacked(bs, G8)
+			!isSquareAttacked(bs, F8)
 
 	case BlackQueenSide:
-		return bs.CastleRights&WhiteQueenSide != 0 &&
+		return bs.CastleRights&BlackQueenSide != 0 &&
 			!bs.Position.AllPieces.GetBit(D8) &&
 			!bs.Position.AllPieces.GetBit(C8) &&
 			!bs.Position.AllPieces.GetBit(B8) &&
 			!isSquareAttacked(bs, E8) &&
-			!isSquareAttacked(bs, D8) &&
-			!isSquareAttacked(bs, C8)
-
+			!isSquareAttacked(bs, D8)
 	}
 
 	return false

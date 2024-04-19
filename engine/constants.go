@@ -71,7 +71,7 @@ const (
 	NoColor uint8 = 2
 	NoPiece uint8 = 12
 
-	// Hexadecimal number that corresponds to casteling rights
+	// Hexadecimal number that corresponds to castling rights
 	WhiteKingSide  = 0x8 // 1000
 	WhiteQueenSide = 0x4 // 0100
 	BlackKingSide  = 0x2 // 0010
@@ -134,7 +134,7 @@ var rookRelevantBits = [64]int{
 // Decimal numbers to update castle rights based on the square
 // of the peice that has moved
 var castleRights = [64]uint8{
-	11, 15, 15, 15, 3, 15, 15, 7,
+	13, 15, 15, 15, 3, 15, 15, 7,
 	15, 15, 15, 15, 15, 15, 15, 15,
 	15, 15, 15, 15, 15, 15, 15, 15,
 	15, 15, 15, 15, 15, 15, 15, 15,

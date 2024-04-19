@@ -66,3 +66,14 @@ func (position *Position) SetPositionWithFEN(FENsquares string) {
 	// AllPieces is the OR bitwise operator of AllWhitePieces and AllBlackPieces
 	position.AllPieces = position.AllWhitePieces | position.AllBlackPieces
 }
+
+// func (position *Position) copy() *Position {
+// 	positionCopy := &Position{
+// 		Pieces:         position.Pieces,
+// 		AllWhitePieces: position.AllWhitePieces,
+// 		AllBlackPieces: position.AllBlackPieces,
+// 		AllPieces:      position.AllPieces,
+// 	}
+//
+// 	return positionCopy
+// }

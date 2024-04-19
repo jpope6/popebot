@@ -1,9 +1,9 @@
 package engine
 
 import (
-	"bufio"
+	// "bufio"
 	"fmt"
-	"os"
+	// "os"
 )
 
 type Moves struct {
@@ -11,28 +11,36 @@ type Moves struct {
 	Count    int
 }
 
-func (moves *Moves) Test(bs *BoardState) {
+type Nodes uint64
+
+func PerftDriver(bs *BoardState, depth int, nodes *Nodes) {
+	if depth == 0 {
+		*nodes++
+		return
+	}
+
+	moves := GenerateAllMoves(bs)
+
 	// Loop over generated moves
 	for moveCount := 0; moveCount < moves.Count; moveCount++ {
-		// Init move
-		move := moves.MoveList[moveCount]
-
 		// Preserve board state
 		boardStateCopy := bs.copy()
 
 		// Make move
-		if !bs.makeMove(move, AllMoves) {
+		if !bs.makeMove(moves.MoveList[moveCount], AllMoves) {
 			continue
 		}
-		PrintBoard(bs)
-		fmt.Println("Press Enter to continue...")
-		bufio.NewReader(os.Stdin).ReadBytes('\n')
+		// PrintBoard(bs)
+		// fmt.Println("Press Enter to continue...")
+		// bufio.NewReader(os.Stdin).ReadBytes('\n')
+
+		PerftDriver(bs, depth-1, nodes)
 
 		// Take back
 		bs.restore(boardStateCopy)
-		PrintBoard(bs)
-		fmt.Println("Press Enter to continue...")
-		bufio.NewReader(os.Stdin).ReadBytes('\n')
+		// PrintBoard(bs)
+		// fmt.Println("Press Enter to continue...")
+		// bufio.NewReader(os.Stdin).ReadBytes('\n')
 	}
 }
 
@@ -79,8 +87,6 @@ func GenerateAllMoves(bs *BoardState) *Moves {
 	moves.generateMoves(bs, Queen)
 	moves.generateMoves(bs, King)
 	moves.generateCastlingMoves(bs)
-
-	moves.printMoveList()
 
 	return &moves
 }
@@ -216,7 +222,6 @@ func (moves *Moves) generateMoves(bs *BoardState, pieceType uint8) {
 		otherPieces = bs.Position.AllBlackPieces
 	} else { // Black
 		piece = (Black * NumPieces) + pieceType
-		fmt.Println(piece)
 		bb = bs.Position.Pieces[Black][pieceType]
 
 		// NOT Black Pieces
@@ -254,38 +259,34 @@ func (moves *Moves) generateMoves(bs *BoardState, pieceType uint8) {
 }
 
 func (moves *Moves) generateCastlingMoves(bs *BoardState) {
-	var piece uint8
-
 	switch bs.Turn {
 	case White:
-		piece = White*5 + King
 		// King side
 		if canCastle(bs, WhiteKingSide) {
 			moves.addMove(
-				E1, G1, piece, NoPiece, NoFlag, NoFlag, NoFlag, CastleFlag,
+				E1, G1, K, NoPiece, NoFlag, NoFlag, NoFlag, CastleFlag,
 			)
 		}
 
 		// Queen side
 		if canCastle(bs, WhiteQueenSide) {
 			moves.addMove(
-				E1, C1, piece, NoPiece, NoFlag, NoFlag, NoFlag, CastleFlag,
+				E1, C1, K, NoPiece, NoFlag, NoFlag, NoFlag, CastleFlag,
 			)
 		}
 
 	case Black:
-		piece = Black*5 + King
 		// King side
 		if canCastle(bs, BlackKingSide) {
 			moves.addMove(
-				E8, G8, piece, NoPiece, NoFlag, NoFlag, NoFlag, CastleFlag,
+				E8, G8, k, NoPiece, NoFlag, NoFlag, NoFlag, CastleFlag,
 			)
 		}
 
 		// Queen side
 		if canCastle(bs, BlackQueenSide) {
 			moves.addMove(
-				E8, C8, piece, NoPiece, NoFlag, NoFlag, NoFlag, CastleFlag,
+				E8, C8, k, NoPiece, NoFlag, NoFlag, NoFlag, CastleFlag,
 			)
 		}
 	}
