@@ -1,13 +1,10 @@
 package engine
 
-import (
-  "fmt"
-  "strings"
-)
+import "fmt"
 
 type Move struct {
-	SourceSquare   uint8
-	TargetSquare   uint8
+	Source         uint8
+	Target         uint8
 	Piece          uint8
 	PromotedPiece  uint8
 	CaptureFlag    uint8
@@ -21,8 +18,8 @@ type EncodedMove uint64
 func (move Move) encodeMove() EncodedMove {
 	var encoded EncodedMove
 
-	encoded |= EncodedMove(move.SourceSquare)
-	encoded |= EncodedMove(uint64(move.TargetSquare) << 6)
+	encoded |= EncodedMove(move.Source)
+	encoded |= EncodedMove(uint64(move.Target) << 6)
 	encoded |= EncodedMove(uint64(move.Piece) << 12)
 	encoded |= EncodedMove(uint64(move.PromotedPiece) << 16)
 
@@ -68,15 +65,14 @@ func (move EncodedMove) getCastleFlag() bool {
 }
 
 func (move EncodedMove) printUciMove() {
-  source := squareToString(move.getSourceSquare())
-  target := squareToString(move.getTargetSquare())
+	source := squareToString(move.getSourceSquare())
+	target := squareToString(move.getTargetSquare())
 
-  promotedStr := pieceToString(move.getPromotedPiece())
-  var promotedChar byte
-  if len(promotedStr) > 0 {
-    promotedChar = strings.ToLower(promotedStr)[0]
-  }
+	promotedPiece := move.getPromotedPiece()
+	var promotedChar byte
+	if promotedPiece != NoPiece {
+		promotedChar = pieceToChar(promotedPiece)
+	}
 
-  
-  fmt.Printf("%s%s%c\n", source, target, promotedChar)
+	fmt.Printf("%s%s%c\n", source, target, promotedChar)
 }

@@ -226,7 +226,7 @@ func pieceToUint8(piece Piece) uint8 {
 		return NoPiece
 	}
 
-	return (piece.Color * 5) + piece.Type
+	return (piece.Color * NumPieces) + piece.Type
 }
 
 func pieceUint8ToString(piece uint8) string {
@@ -238,6 +238,25 @@ func pieceUint8ToString(piece uint8) string {
 	pieceType := piece % 6
 
 	return colorToString(pieceColor) + " " + pieceToString(pieceType)
+}
+
+func pieceToChar(piece uint8) byte {
+	switch piece {
+	case P, p:
+		return 'p'
+	case N, n:
+		return 'n'
+	case B, b:
+		return 'b'
+	case R, r:
+		return 'r'
+	case Q, q:
+		return 'q'
+	case K, k:
+		return 'k'
+	}
+
+	return ' '
 }
 
 func pieceToString(pieceType uint8) string {
@@ -258,4 +277,3 @@ func pieceToString(pieceType uint8) string {
 
 	return ""
 }
-

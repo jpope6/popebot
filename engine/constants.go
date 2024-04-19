@@ -42,12 +42,13 @@ const (
 	NotRank8  Bitboard = 0x00FFFFFFFFFFFFFF
 
 	// Piece Types
-	Pawn   uint8 = 0
-	Knight uint8 = 1
-	Bishop uint8 = 2
-	Rook   uint8 = 3
-	Queen  uint8 = 4
-	King   uint8 = 5
+	Pawn      uint8 = 0
+	Knight    uint8 = 1
+	Bishop    uint8 = 2
+	Rook      uint8 = 3
+	Queen     uint8 = 4
+	King      uint8 = 5
+	NumPieces uint8 = 6
 
 	// Color Types
 	White uint8 = 0

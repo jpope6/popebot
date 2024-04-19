@@ -7,89 +7,118 @@ type Moves struct {
 	Count    int
 }
 
-func (moves *Moves) addMove(move EncodedMove) {
-	moves.MoveList[moves.Count] = move
+func (moves *Moves) addMove(
+	source, target, piece, promotedPiece, capture, dp, ep, castle uint8,
+) {
+	// Create a Move object with provided parameters.
+	move := Move{
+		Source:         source,
+		Target:         target,
+		Piece:          piece,
+		PromotedPiece:  promotedPiece,
+		CaptureFlag:    capture,
+		DoublePushFlag: dp,
+		EnPassantFlag:  ep,
+		CastleFlag:     castle,
+	}
+
+	// Encode the move.
+	encodedMove := move.encodeMove()
+
+	// Add the encoded move to the MoveList.
+	moves.MoveList[moves.Count] = encodedMove
+
+	// Increment the count of moves.
 	moves.Count++
 }
 
 func (moves *Moves) printMoveList() {
-	for i := 0; i < moves.Count; i++ {
-		moves.MoveList[i].printUciMove()
-	}
+	// for i := 0; i < moves.Count; i++ {
+	// 	moves.MoveList[i].printUciMove()
+	// }
 
-  fmt.Printf("Total number of moves: %d\n", moves.Count)
+	fmt.Printf("Total number of moves: %d\n", moves.Count)
 }
 
 func GenerateAllMoves(bs *BoardState) {
-	// generatePawnMoves(bs)
-	// generateMoves(bs, Knight)
-	// generateMoves(bs, Bishop)
-	// generateMoves(bs, Rook)
-	// generateMoves(bs, King)
-	// generateCastlingMoves(bs)
+	var moves Moves = Moves{}
 
-	move := Move{
-		E2, E4,
-		P,
-		Q,
-		NoFlag, NoFlag, EnPassantFlag, NoFlag,
-	}
+	moves.generatePawnMoves(bs)
+	moves.generateMoves(bs, Knight)
+	moves.generateMoves(bs, Bishop)
+	moves.generateMoves(bs, Rook)
+	moves.generateMoves(bs, Queen)
+	moves.generateMoves(bs, King)
+	moves.generateCastlingMoves(bs)
 
-	encodedMove := move.encodeMove()
-
-  moves := Moves{}
-
-  moves.addMove(encodedMove)
-  moves.printMoveList()
+	moves.printMoveList()
 }
 
-func generatePawnMoves(bs *BoardState) {
-	var sourceSquare uint8
-	var targetSquare uint8
+func (moves *Moves) generatePawnMoves(bs *BoardState) {
+	var source uint8
+	var target uint8
 	var bb Bitboard
 
 	switch bs.Turn {
 	case White:
 		bb = bs.Position.Pieces[White][Pawn]
 		for bb != 0 {
-			sourceSquare = bb.GetLsbIndex()
-			targetSquare = sourceSquare + 8
-			handlePawnMoves(bs, sourceSquare, targetSquare, targetSquare+8)
-			handlePawnCaptures(bs, sourceSquare, targetSquare)
-			bb.PopBit(sourceSquare)
+			source = bb.GetLsbIndex()
+			target = source + 8
+			handlePawnMoves(bs, moves, P, source, target, target+8)
+			handlePawnCaptures(bs, moves, P, source, target)
+			bb.PopBit(source)
 		}
+
 	case Black:
 		bb = bs.Position.Pieces[Black][Pawn]
 		for bb != 0 {
-			sourceSquare = bb.GetLsbIndex()
-			targetSquare = sourceSquare - 8
-			handlePawnMoves(bs, sourceSquare, targetSquare, targetSquare-8)
-			handlePawnCaptures(bs, sourceSquare, targetSquare)
-			bb.PopBit(sourceSquare)
+			source = bb.GetLsbIndex()
+			target = source - 8
+			handlePawnMoves(bs, moves, p, source, target, target-8)
+			handlePawnCaptures(bs, moves, p, source, target)
+			bb.PopBit(source)
 		}
 	}
 }
 
-func handlePawnMoves(bs *BoardState, sourceSquare, targetSquare, doubleTargetSquare uint8) {
-	// If square is on board and there is not a piece on the targetSquare
-	if targetSquare <= H8 && !bs.Position.AllPieces.GetBit(targetSquare) {
-		// Pawn promotion
-		if isPromotionSquare(bs.Turn, sourceSquare) {
-			fmt.Printf("Pawn Promote: %s, %s\n", squareToString(sourceSquare), squareToString(targetSquare))
-		} else {
-			// Single pawn push
-			fmt.Printf("Pawn single push: %s, %s\n", squareToString(sourceSquare), squareToString(targetSquare))
+func handlePawnMoves(
+	bs *BoardState, moves *Moves, piece, source, target, doubleTarget uint8,
+) {
+	if target > H8 || bs.Position.AllPieces.GetBit(target) {
+		return // Square is off board or occupied
+	}
 
-			// Double pawn push
-			if isDoublePushSquare(bs.Turn, sourceSquare) &&
-				!bs.Position.AllPieces.GetBit(doubleTargetSquare) {
-				fmt.Printf("Pawn double push: %s, %s\n", squareToString(sourceSquare), squareToString(doubleTargetSquare))
-			}
+	// Pawn promotion
+	if isPromotionSquare(bs.Turn, source) {
+		promotionPiece := piece + 1
+		stopPiece := piece + 5
+
+		// Loop from knight to queen
+		for promotionPiece < stopPiece {
+			moves.addMove(
+				source, target, piece, promotionPiece, NoFlag, NoFlag, NoFlag, NoFlag,
+			)
+			promotionPiece++
+		}
+	} else {
+		// Single pawn push
+		moves.addMove(
+			source, target, piece, NoPiece, NoFlag, NoFlag, NoFlag, NoFlag,
+		)
+
+		// Double pawn push
+		if isDoublePushSquare(bs.Turn, source) && !bs.Position.AllPieces.GetBit(doubleTarget) {
+			moves.addMove(
+				source, doubleTarget, piece, NoPiece, NoFlag, DoublePushFlag, NoFlag, NoFlag,
+			)
 		}
 	}
 }
 
-func handlePawnCaptures(bs *BoardState, sourceSquare, targetSquare uint8) {
+func handlePawnCaptures(
+	bs *BoardState, moves *Moves, piece, source, target uint8,
+) {
 	var otherPieces Bitboard
 
 	if bs.Turn == White {
@@ -98,40 +127,55 @@ func handlePawnCaptures(bs *BoardState, sourceSquare, targetSquare uint8) {
 		otherPieces = bs.Position.AllWhitePieces
 	}
 
-	attacks := pawnAttacks[bs.Turn][sourceSquare] & otherPieces
+	attacks := pawnAttacks[bs.Turn][source] & otherPieces
 
 	for attacks != 0 {
-		targetSquare = attacks.GetLsbIndex()
+		target = attacks.GetLsbIndex()
 
-		if isPromotionSquare(bs.Turn, sourceSquare) {
-			fmt.Printf("Pawn Capture Promote: %s, %s\n", squareToString(sourceSquare), squareToString(targetSquare))
+		if isPromotionSquare(bs.Turn, source) {
+			promotionPiece := piece + 1
+			stopPiece := piece + 5
+
+			// Loop from knight to queen
+			for promotionPiece < stopPiece {
+				moves.addMove(
+					source, target, piece, promotionPiece, CaptureFlag, NoFlag, NoFlag, NoFlag,
+				)
+				promotionPiece++
+			}
 		} else {
-			fmt.Printf("Pawn Capture: %s, %s\n", squareToString(sourceSquare), squareToString(targetSquare))
+			moves.addMove(
+				source, target, piece, NoPiece, CaptureFlag, NoFlag, NoFlag, NoFlag,
+			)
 		}
 
-		attacks.PopBit(targetSquare)
+		attacks.PopBit(target)
 	}
 
 	// TODO: Might be able to move to to outside of loop in GeneratePawnMoves
 	if bs.EpSquare != NoEpSquare {
-		epAttacks := pawnAttacks[bs.Turn][sourceSquare] & (1 << bs.EpSquare)
+		epAttacks := pawnAttacks[bs.Turn][source] & (1 << bs.EpSquare)
 
 		if epAttacks != 0 {
-			targetEpSquare := epAttacks.GetLsbIndex()
-			fmt.Printf("Pawn epCapture: %s, %s\n", squareToString(sourceSquare), squareToString(targetEpSquare))
+			target := epAttacks.GetLsbIndex()
+			moves.addMove(
+				source, target, piece, NoPiece, CaptureFlag, NoFlag, EnPassantFlag, NoFlag,
+			)
 		}
 	}
 }
 
-func generateMoves(bs *BoardState, pieceType uint8) {
-	var sourceSquare uint8
-	var targetSquare uint8
+func (moves *Moves) generateMoves(bs *BoardState, pieceType uint8) {
+	var source uint8
+	var target uint8
+	var piece uint8
 	var bb Bitboard
 	var attacks Bitboard
 	var availableMoves Bitboard
 	var otherPieces Bitboard
 
 	if bs.Turn == White {
+		piece = (White * NumPieces) + pieceType
 		bb = bs.Position.Pieces[White][pieceType]
 
 		// NOT White Pieces
@@ -140,6 +184,8 @@ func generateMoves(bs *BoardState, pieceType uint8) {
 
 		otherPieces = bs.Position.AllBlackPieces
 	} else { // Black
+		piece = (Black * NumPieces) + pieceType
+		fmt.Println(piece)
 		bb = bs.Position.Pieces[Black][pieceType]
 
 		// NOT Black Pieces
@@ -150,50 +196,66 @@ func generateMoves(bs *BoardState, pieceType uint8) {
 	}
 
 	for bb != 0 {
-		sourceSquare = bb.GetLsbIndex()
+		source = bb.GetLsbIndex()
 
 		// Get the available moves of the piece type at the source square
-		attacks = getMoves(bs, pieceType, sourceSquare) & availableMoves
+		attacks = getMoves(bs, pieceType, source) & availableMoves
 
 		for attacks != 0 {
-			targetSquare = attacks.GetLsbIndex()
+			target = attacks.GetLsbIndex()
 
 			// Capture moves
-			if otherPieces.GetBit(targetSquare) {
-				fmt.Printf("%s Capture: %s, %s\n", pieceToString(pieceType), squareToString(sourceSquare), squareToString(targetSquare))
+			if otherPieces.GetBit(target) {
+				moves.addMove(
+					source, target, piece, NoPiece, CaptureFlag, NoFlag, NoFlag, NoFlag,
+				)
 			} else {
-				fmt.Printf("%s Move: %s, %s\n", pieceToString(pieceType), squareToString(sourceSquare), squareToString(targetSquare))
+				moves.addMove(
+					source, target, piece, NoPiece, NoFlag, NoFlag, NoFlag, NoFlag,
+				)
 			}
 
-			attacks.PopBit(targetSquare)
+			attacks.PopBit(target)
 		}
 
-		bb.PopBit(sourceSquare)
+		bb.PopBit(source)
 	}
 }
 
-func generateCastlingMoves(bs *BoardState) {
+func (moves *Moves) generateCastlingMoves(bs *BoardState) {
+	var piece uint8
+
 	switch bs.Turn {
 	case White:
+		piece = White*5 + King
 		// King side
 		if canCastle(bs, WhiteKingSide) {
-			fmt.Printf("Castling Move: E1, G1\n")
+			moves.addMove(
+				E1, G1, piece, NoPiece, NoFlag, NoFlag, NoFlag, CastleFlag,
+			)
 		}
 
 		// Queen side
 		if canCastle(bs, WhiteQueenSide) {
-			fmt.Printf("Castling Move: E1, C1\n")
+			moves.addMove(
+				E1, C1, piece, NoPiece, NoFlag, NoFlag, NoFlag, CastleFlag,
+			)
 		}
 
 	case Black:
+		piece = Black*5 + King
 		// King side
 		if canCastle(bs, BlackKingSide) {
-			fmt.Printf("Castling Move: E1, G1\n")
+			moves.addMove(
+				E8, G8, piece, NoPiece, NoFlag, NoFlag, NoFlag, CastleFlag,
+			)
 		}
 
 		// Queen side
 		if canCastle(bs, BlackQueenSide) {
-			fmt.Printf("Castling Move: E8, C8\n")
+			moves.addMove(
+				E8, C8, piece, NoPiece, NoFlag, NoFlag, NoFlag, CastleFlag,
+			)
 		}
 	}
 }
