@@ -78,7 +78,7 @@ const (
 	BlackQueenSide = 0x1 // 0001
 
 	// NoEpSquare will be num squares + 1
-	NoSquare = 65
+	NoSquare = 64
 
 	// Encoding move constants
 	SourceSquareHex = 0x3F
@@ -129,6 +129,19 @@ var rookRelevantBits = [64]int{
 	11, 10, 10, 10, 10, 10, 10, 11,
 	11, 10, 10, 10, 10, 10, 10, 11,
 	12, 11, 11, 11, 11, 11, 11, 12,
+}
+
+// Decimal numbers to update castle rights based on the square
+// of the peice that has moved
+var castleRights = [64]uint8{
+	11, 15, 15, 15, 3, 15, 15, 7,
+	15, 15, 15, 15, 15, 15, 15, 15,
+	15, 15, 15, 15, 15, 15, 15, 15,
+	15, 15, 15, 15, 15, 15, 15, 15,
+	15, 15, 15, 15, 15, 15, 15, 15,
+	15, 15, 15, 15, 15, 15, 15, 15,
+	15, 15, 15, 15, 15, 15, 15, 15,
+	14, 15, 15, 15, 12, 15, 15, 13,
 }
 
 var bishopMagics [64]Bitboard = [64]Bitboard{

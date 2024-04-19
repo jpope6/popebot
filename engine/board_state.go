@@ -96,7 +96,7 @@ func (bs *BoardState) makeMove(move EncodedMove, moveFlag uint8) {
 		capture := move.isCapture()
 		doublePush := move.isDoublePush()
 		enPassant := move.isEnPassant()
-		// castle := move.getCastleFlag()
+		castle := move.isCastle()
 
 		pieceColor := piece / 6
 		pieceType := piece % 6
@@ -123,6 +123,13 @@ func (bs *BoardState) makeMove(move EncodedMove, moveFlag uint8) {
 		if doublePush {
 			bs.handleDoublePush(target)
 		}
+
+		if castle {
+			bs.handleCastle(target)
+		}
+
+		bs.updateCastleRights(source, target)
+		bs.updateBitboards()
 	}
 }
 
@@ -141,7 +148,7 @@ func (bs *BoardState) handleCapture(target uint8) {
 		end = K
 	}
 
-	for piece := start; piece < end; piece++ {
+	for piece := start; piece <= end; piece++ {
 		pieceColor := piece / 6
 		pieceType := piece % 6
 
@@ -163,19 +170,6 @@ func (bs *BoardState) handlePromotion(piece, promotedPiece, target uint8) {
 	bs.Position.Pieces[promotedColor][promotedType].SetBit(target)
 }
 
-func (bs *BoardState) copy() *BoardState {
-	var copyBs *BoardState = &BoardState{
-		Position:     bs.Position,
-		Turn:         bs.Turn,
-		CastleRights: bs.CastleRights,
-		EpSquare:     bs.EpSquare,
-		halfMove:     bs.halfMove,
-		fullMove:     bs.fullMove,
-	}
-
-	return copyBs
-}
-
 func (bs *BoardState) handleEnPassant(target uint8) {
 	if bs.Turn == White {
 		bs.Position.Pieces[Black][Pawn].PopBit(target - 8)
@@ -190,6 +184,67 @@ func (bs *BoardState) handleDoublePush(target uint8) {
 	} else {
 		bs.EpSquare = target + 8
 	}
+}
+
+func (bs *BoardState) handleCastle(target uint8) {
+	switch target {
+	// White King Side
+	case G1:
+		bs.Position.Pieces[White][Rook].PopBit(H1)
+		bs.Position.Pieces[White][Rook].SetBit(F1)
+	// White Queen Side
+	case C1:
+		bs.Position.Pieces[White][Rook].PopBit(A1)
+		bs.Position.Pieces[White][Rook].SetBit(D1)
+		// Black King Side
+	case G8:
+		bs.Position.Pieces[Black][Rook].PopBit(H8)
+		bs.Position.Pieces[Black][Rook].SetBit(F8)
+	// Black Queen Side
+	case C8:
+		bs.Position.Pieces[Black][Rook].PopBit(A8)
+		bs.Position.Pieces[Black][Rook].SetBit(D8)
+	}
+}
+
+func (bs *BoardState) updateCastleRights(source, target uint8) {
+	bs.CastleRights &= castleRights[source]
+	bs.CastleRights &= castleRights[target]
+}
+
+func (bs *BoardState) updateBitboards() {
+	bs.Position.AllWhitePieces = 0
+	bs.Position.AllBlackPieces = 0
+	bs.Position.AllPieces = 0
+
+	// White Pieces
+	for piece := P; piece <= K; piece++ {
+		pieceColor := piece / 6
+		pieceType := piece % 6
+		bs.Position.AllWhitePieces |= bs.Position.Pieces[pieceColor][pieceType]
+	}
+
+	// Black Pieces
+	for piece := P; piece <= K; piece++ {
+		pieceColor := piece / 6
+		pieceType := piece % 6
+		bs.Position.AllBlackPieces |= bs.Position.Pieces[pieceColor][pieceType]
+	}
+
+	bs.Position.AllPieces = bs.Position.AllWhitePieces | bs.Position.AllBlackPieces
+}
+
+func (bs *BoardState) copy() *BoardState {
+	var copyBs *BoardState = &BoardState{
+		Position:     bs.Position,
+		Turn:         bs.Turn,
+		CastleRights: bs.CastleRights,
+		EpSquare:     bs.EpSquare,
+		halfMove:     bs.halfMove,
+		fullMove:     bs.fullMove,
+	}
+
+	return copyBs
 }
 
 func (bs *BoardState) restore(other *BoardState) {
