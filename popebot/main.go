@@ -8,7 +8,7 @@ import (
 
 const (
 	startFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-	testFen  = "r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1"
+	testFen  = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 )
 
 func init() {
@@ -23,7 +23,7 @@ func main() {
 
 	start := time.Now()
 
-	engine.PerftDriver(&bs, 2, &nodes)
+	engine.PerftDriver(&bs, 4, &nodes)
 
 	duration := time.Since(start)
 	fmt.Printf("Time: %d ms\n", duration.Milliseconds())
