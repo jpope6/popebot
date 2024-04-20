@@ -1,7 +1,5 @@
 package engine
 
-import "fmt"
-
 type Move struct {
 	Source         uint8
 	Target         uint8
@@ -64,15 +62,16 @@ func (move EncodedMove) isCastle() bool {
 	return (move & CastleHex) != 0
 }
 
-func (move EncodedMove) printUciMove() string {
-	source := squareToString(move.getSourceSquare())
-	target := squareToString(move.getTargetSquare())
+func (move EncodedMove) toUciMove() string {
+	var uciMove string
+
+	uciMove += squareToString(move.getSourceSquare())
+	uciMove += squareToString(move.getTargetSquare())
 
 	promotedPiece := move.getPromotedPiece()
-	var promotedChar byte
 	if promotedPiece != NoPiece {
-		promotedChar = pieceToChar(promotedPiece)
+		uciMove += string(pieceToChar(promotedPiece))
 	}
 
-	return fmt.Sprintf("%s%s%c\n", source, target, promotedChar)
+	return uciMove
 }

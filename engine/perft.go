@@ -1,10 +1,5 @@
 package engine
 
-import (
-// "bufio"
-// "os"
-)
-
 type Nodes uint64
 
 func PerftDriver(bs *BoardState, depth int, nodes *Nodes) {
@@ -21,19 +16,13 @@ func PerftDriver(bs *BoardState, depth int, nodes *Nodes) {
 		boardStateCopy := bs.copy()
 
 		// Make move
-		if !bs.makeMove(moves.MoveList[moveCount], AllMoves) {
+		if !bs.MakeMove(moves.MoveList[moveCount], AllMoves) {
 			continue
 		}
-		// PrintBoard(bs)
-		// fmt.Println("Press Enter to continue...")
-		// bufio.NewReader(os.Stdin).ReadBytes('\n')
 
 		PerftDriver(bs, depth-1, nodes)
 
 		// Take back
 		bs.restore(boardStateCopy)
-		// PrintBoard(bs)
-		// fmt.Println("Press Enter to continue...")
-		// bufio.NewReader(os.Stdin).ReadBytes('\n')
 	}
 }

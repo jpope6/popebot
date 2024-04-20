@@ -85,7 +85,7 @@ func (bs *BoardState) InitBoardState(FEN string) {
 
 // Make move takes an encoded move and a move flag (quiet vs capture)
 // and will make the move on a copy of the board
-func (bs *BoardState) makeMove(move EncodedMove, moveFlag uint8) bool {
+func (bs *BoardState) MakeMove(move EncodedMove, moveFlag uint8) bool {
 	if moveFlag != AllMoves && !move.isCapture() {
 		return false
 	}

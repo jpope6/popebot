@@ -12,11 +12,11 @@ func GetFile(square uint8) uint8 {
 	return square & 7
 }
 
-func GetSquare(rank uint8, file uint8) uint8 {
+func GetSquare(rank, file uint8) uint8 {
 	return (rank << 3) + file
 }
 
-func isPromotionSquare(turn uint8, square uint8) bool {
+func isPromotionSquare(turn, square uint8) bool {
 	if turn == White {
 		return square >= A7 && square <= H7
 	} else {
@@ -24,7 +24,7 @@ func isPromotionSquare(turn uint8, square uint8) bool {
 	}
 }
 
-func isDoublePushSquare(turn uint8, square uint8) bool {
+func isDoublePushSquare(turn, square uint8) bool {
 	if turn == White {
 		return square >= A2 && square <= H2
 	} else {

@@ -3,12 +3,11 @@ package main
 import (
 	"fmt"
 	"popebot/engine"
-	"time"
 )
 
 const (
 	startFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-	testFen  = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+	testFen  = "4k3/8/8/8/8/8/8/R3K2R w KQ - 0 1"
 )
 
 func init() {
@@ -16,16 +15,18 @@ func init() {
 }
 
 func main() {
-	var nodes engine.Nodes = 0
 	var bs engine.BoardState
 	bs.InitBoardState(testFen)
+	moves := engine.GenerateAllMoves(&bs)
 	engine.PrintBoard(&bs)
 
-	start := time.Now()
+	move := moves.ParseMoveString("e1g1")
 
-	engine.PerftDriver(&bs, 4, &nodes)
+	if move != 0 {
+		bs.MakeMove(move, engine.AllMoves)
+	} else {
+		fmt.Println("\nIllegal move")
+	}
 
-	duration := time.Since(start)
-	fmt.Printf("Time: %d ms\n", duration.Milliseconds())
-	fmt.Printf("Nodes: %d\n", nodes)
+	engine.PrintBoard(&bs)
 }
