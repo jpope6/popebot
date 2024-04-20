@@ -64,7 +64,7 @@ func (move EncodedMove) isCastle() bool {
 	return (move & CastleHex) != 0
 }
 
-func (move EncodedMove) printUciMove() {
+func (move EncodedMove) printUciMove() string {
 	source := squareToString(move.getSourceSquare())
 	target := squareToString(move.getTargetSquare())
 
@@ -74,5 +74,5 @@ func (move EncodedMove) printUciMove() {
 		promotedChar = pieceToChar(promotedPiece)
 	}
 
-	fmt.Printf("%s%s%c\n", source, target, promotedChar)
+	return fmt.Sprintf("%s%s%c\n", source, target, promotedChar)
 }

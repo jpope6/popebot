@@ -10,8 +10,8 @@ import (
 )
 
 type PerftTest struct {
-	FEN         string
-	DepthValues [7]Nodes
+	FEN        string
+	DepthNodes [7]Nodes
 }
 
 func loadPerftData() (tests []PerftTest, err error) {
@@ -28,13 +28,13 @@ func loadPerftData() (tests []PerftTest, err error) {
 		line := scanner.Text()
 		parts := strings.Split(line, ";")
 		test := PerftTest{FEN: strings.TrimSpace(parts[0])}
-		test.DepthValues = [7]Nodes{}
+		test.DepthNodes = [7]Nodes{}
 
 		for _, count := range parts[1:] {
 			depth, _ := strconv.Atoi(string(count[1]))
 			expected, _ := strconv.Atoi(strings.TrimSpace(count[3:]))
 
-			test.DepthValues[depth-1] = Nodes(expected)
+			test.DepthNodes[depth-1] = Nodes(expected)
 		}
 
 		tests = append(tests, test)
@@ -59,7 +59,7 @@ func TestPerftDriver(t *testing.T) {
 	var bs BoardState
 
 	for _, tests := range perftData {
-		for depth, expectedValue := range tests.DepthValues {
+		for depth, expectedValue := range tests.DepthNodes {
 			if expectedValue == 0 {
 				continue
 			}
