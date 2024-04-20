@@ -134,7 +134,7 @@ var rookRelevantBits = [64]int{
 // Decimal numbers to update castle rights based on the square
 // of the peice that has moved
 var castleRights = [64]uint8{
-	13, 15, 15, 15, 3, 15, 15, 7,
+	11, 15, 15, 15, 3, 15, 15, 7,
 	15, 15, 15, 15, 15, 15, 15, 15,
 	15, 15, 15, 15, 15, 15, 15, 15,
 	15, 15, 15, 15, 15, 15, 15, 15,
