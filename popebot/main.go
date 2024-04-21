@@ -1,13 +1,13 @@
 package main
 
 import (
-	"fmt"
 	"popebot/engine"
 )
 
 const (
 	startFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 	testFen  = "4k3/8/8/8/8/8/8/R3K2R w KQ - 0 1"
+	command  = "position startpos moves e2e4 e7e5 g1f3 b8c6"
 )
 
 func init() {
@@ -16,17 +16,6 @@ func init() {
 
 func main() {
 	var bs engine.BoardState
-	bs.InitBoardState(testFen)
-	moves := engine.GenerateAllMoves(&bs)
-	engine.PrintBoard(&bs)
 
-	move := moves.ParseMoveString("e1g1")
-
-	if move != 0 {
-		bs.MakeMove(move, engine.AllMoves)
-	} else {
-		fmt.Println("\nIllegal move")
-	}
-
-	engine.PrintBoard(&bs)
+	engine.UciLoop(&bs)
 }

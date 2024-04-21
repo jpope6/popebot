@@ -30,35 +30,6 @@ func (moves *Moves) addMove(
 	moves.Count++
 }
 
-func (moves *Moves) ParseMoveString(moveStr string) EncodedMove {
-	var file uint8
-	var rank uint8
-	var uciMove string
-
-	// Source square
-	file = uint8(moveStr[0] - 'a')
-	rank = uint8(moveStr[1] - '1')
-	uciMove += squareToString(GetSquare(rank, file))
-
-	// Target square
-	file = uint8(moveStr[2] - 'a')
-	rank = uint8(moveStr[3] - '1')
-	uciMove += squareToString(GetSquare(rank, file))
-
-	// Promotion piece
-	if len(moveStr) > 4 {
-		uciMove += string(moveStr[4])
-	}
-
-	for _, move := range moves.MoveList {
-		if move.toUciMove() == uciMove {
-			return move
-		}
-	}
-
-	return 0
-}
-
 func GenerateAllMoves(bs *BoardState) *Moves {
 	var moves Moves = Moves{}
 
