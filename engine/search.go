@@ -7,16 +7,17 @@ import (
 
 func (bs *BoardState) Search(depth int) {
 	var nodes Nodes = 0
-	_, bestMove := bs.negamax(depth, math.MinInt32, math.MaxInt32, 0, &nodes)
+	ply := 0
+	_, bestMove := bs.negamax(depth, math.MinInt32, math.MaxInt32, &ply, &nodes)
 
 	fmt.Printf("bestmove %s\n", bestMove.toUciMove())
 }
 
 func (bs *BoardState) negamax(
-	depth, alpha, beta, ply int, nodes *Nodes,
+	depth, alpha, beta int, ply *int, nodes *Nodes,
 ) (int, EncodedMove) {
 	if depth == 0 {
-		return bs.Evaluate(), NoMove
+		return bs.quiescense(alpha, beta, ply), NoMove
 	}
 
 	*nodes++
@@ -33,11 +34,11 @@ func (bs *BoardState) negamax(
 		}
 
 		copyBs := bs.copy()
-		ply++
+		*ply++
 
 		// Ensure move is legal
 		if !bs.MakeMove(move, AllMoves) {
-			ply--
+			*ply--
 			continue
 		}
 
@@ -46,7 +47,7 @@ func (bs *BoardState) negamax(
 		score, _ := bs.negamax(depth-1, -beta, -alpha, ply, nodes)
 		score = -score
 		bs.restore(copyBs)
-		ply--
+		*ply--
 
 		if score >= beta {
 			return beta, NoMove
@@ -55,7 +56,7 @@ func (bs *BoardState) negamax(
 		if score > alpha {
 			alpha = score
 
-			if ply == 0 {
+			if *ply == 0 {
 				bestMove = move
 			}
 		}
@@ -65,7 +66,7 @@ func (bs *BoardState) negamax(
 	if legalMoves == 0 {
 		if bs.isKingInCheck() {
 			// Checkmate score
-			return math.MinInt32 + 1000 + ply, NoMove
+			return math.MinInt32 + 1000 + *ply, NoMove
 		} else {
 			// Stalemate score
 			return 0, NoMove
@@ -77,6 +78,49 @@ func (bs *BoardState) negamax(
 	}
 
 	return alpha, NoMove
+}
+
+func (bs *BoardState) quiescense(alpha, beta int, ply *int) int {
+	evaluation := bs.Evaluate()
+
+	if evaluation >= beta {
+		return beta
+	}
+
+	if evaluation > alpha {
+		alpha = evaluation
+	}
+
+	moves := GenerateAllMoves(bs)
+
+	for _, move := range moves.MoveList {
+		if move == NoMove {
+			continue
+		}
+
+		copyBs := bs.copy()
+		*ply++
+
+		// Ensure move is legal
+		if !bs.MakeMove(move, CaptureMoves) {
+			*ply--
+			continue
+		}
+
+		score := -bs.quiescense(-beta, -alpha, ply)
+		bs.restore(copyBs)
+		*ply--
+
+		if score >= beta {
+			return beta
+		}
+
+		if score > alpha {
+			alpha = score
+		}
+	}
+
+	return alpha
 }
 
 func (bs *BoardState) Evaluate() int {

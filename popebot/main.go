@@ -16,7 +16,7 @@ func init() {
 
 func main() {
 	var bs engine.BoardState
-	debug := true
+	debug := false
 
 	if debug {
 		bs.InitBoardState(testFen)
