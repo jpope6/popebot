@@ -57,6 +57,7 @@ func (moves *Moves) generatePawnMoves(bs *BoardState) {
 			target = source + 8
 			handlePawnMoves(bs, moves, P, source, target, target+8)
 			handlePawnCaptures(bs, moves, P, source, target)
+			handleEnPassant(bs, moves, P, source)
 			bb.PopBit(source)
 		}
 
@@ -67,6 +68,7 @@ func (moves *Moves) generatePawnMoves(bs *BoardState) {
 			target = source - 8
 			handlePawnMoves(bs, moves, p, source, target, target-8)
 			handlePawnCaptures(bs, moves, p, source, target)
+			handleEnPassant(bs, moves, p, source)
 			bb.PopBit(source)
 		}
 	}
@@ -141,8 +143,9 @@ func handlePawnCaptures(
 
 		attacks.PopBit(target)
 	}
+}
 
-	// TODO: Might be able to move to to outside of loop in GeneratePawnMoves
+func handleEnPassant(bs *BoardState, moves *Moves, piece, source uint8) {
 	if bs.EpSquare != NoSquare {
 		epAttacks := pawnAttacks[bs.Turn][source] & (1 << bs.EpSquare)
 

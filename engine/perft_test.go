@@ -78,6 +78,7 @@ func TestPerftDriver(t *testing.T) {
 			if nodes != expectedValue {
 				fmt.Printf("Depth: %d, Expected Perft Value: %d, Actual Perft Value: %d\n",
 					depth+1, expectedValue, nodes)
+				t.Errorf("Position failed: %s, Depth: %d\n", tests.FEN, depth+1)
 			} else {
 				fmt.Printf("Depth: %d, Time taken: %d ms\n", depth+1, duration)
 			}
