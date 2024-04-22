@@ -69,10 +69,6 @@ func canCastle(bs *BoardState, side uint8) bool {
 	return false
 }
 
-func isKingInCheck(bs *BoardState, kingSquare uint8) bool {
-	return isSquareAttacked(bs, kingSquare)
-}
-
 // Print the bitboard in a chess board
 func PrintBitboard(bb Bitboard) {
 	fmt.Printf("\n")

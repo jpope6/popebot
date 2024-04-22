@@ -8,6 +8,7 @@ import (
 func (bs *BoardState) Search(depth int) {
 	var nodes Nodes = 0
 	_, bestMove := bs.negamax(depth, math.MinInt32, math.MaxInt32, 0, &nodes)
+
 	fmt.Printf("bestmove %s\n", bestMove.toUciMove())
 }
 
@@ -19,9 +20,12 @@ func (bs *BoardState) negamax(
 	}
 
 	*nodes++
-	moves := GenerateAllMoves(bs)
 	var bestMove EncodedMove
 	originalAlpha := alpha
+
+	legalMoves := 0
+
+	moves := GenerateAllMoves(bs)
 
 	for _, move := range moves.MoveList {
 		if move == NoMove {
@@ -36,6 +40,8 @@ func (bs *BoardState) negamax(
 			ply--
 			continue
 		}
+
+		legalMoves++
 
 		score, _ := bs.negamax(depth-1, -beta, -alpha, ply, nodes)
 		score = -score
@@ -52,6 +58,17 @@ func (bs *BoardState) negamax(
 			if ply == 0 {
 				bestMove = move
 			}
+		}
+	}
+
+	// Checkmate or Stalemate
+	if legalMoves == 0 {
+		if bs.isKingInCheck() {
+			// Checkmate score
+			return math.MinInt32 + 1000 + ply, NoMove
+		} else {
+			// Stalemate score
+			return 0, NoMove
 		}
 	}
 
