@@ -46,7 +46,7 @@ func UciLoop(bs *BoardState) {
 		case input == "ucinewgame":
 			ParsePosition(bs, "position startpos")
 		case strings.HasPrefix(input, "go"):
-			ParseGo(input)
+			ParseGo(bs, input)
 		case input == "quit":
 			return
 		}
@@ -131,11 +131,9 @@ func ParsePosition(bs *BoardState, command string) {
 			bs.MakeMove(move, AllMoves)
 		}
 	}
-
-	PrintBoard(bs)
 }
 
-func ParseGo(command string) {
+func ParseGo(bs *BoardState, command string) {
 	// Init depth
 	depth := -1
 
@@ -156,6 +154,5 @@ func ParseGo(command string) {
 		depth = 6 // Default depth
 	}
 
-	// Search position
-	searchPosition(depth)
+	bs.Search(depth)
 }

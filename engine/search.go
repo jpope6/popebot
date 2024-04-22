@@ -1,12 +1,68 @@
 package engine
 
-import "fmt"
+import (
+	"fmt"
+	"math"
+)
 
-func searchPosition(depth int) {
-	fmt.Printf("bestmove d2d4\n")
+func (bs *BoardState) Search(depth int) {
+	var nodes Nodes = 0
+	_, bestMove := bs.negamax(depth, math.MinInt32, math.MaxInt32, 0, &nodes)
+	fmt.Printf("bestmove %s\n", bestMove.toUciMove())
 }
 
-func Evaluate(bs *BoardState) int {
+func (bs *BoardState) negamax(
+	depth, alpha, beta, ply int, nodes *Nodes,
+) (int, EncodedMove) {
+	if depth == 0 {
+		return bs.Evaluate(), NoMove
+	}
+
+	*nodes++
+	moves := GenerateAllMoves(bs)
+	var bestMove EncodedMove
+	originalAlpha := alpha
+
+	for _, move := range moves.MoveList {
+		if move == NoMove {
+			continue
+		}
+
+		copyBs := bs.copy()
+		ply++
+
+		// Ensure move is legal
+		if !bs.MakeMove(move, AllMoves) {
+			ply--
+			continue
+		}
+
+		score, _ := bs.negamax(depth-1, -beta, -alpha, ply, nodes)
+		score = -score
+		bs.restore(copyBs)
+		ply--
+
+		if score >= beta {
+			return beta, NoMove
+		}
+
+		if score > alpha {
+			alpha = score
+
+			if ply == 0 {
+				bestMove = move
+			}
+		}
+	}
+
+	if originalAlpha != alpha {
+		return alpha, bestMove
+	}
+
+	return alpha, NoMove
+}
+
+func (bs *BoardState) Evaluate() int {
 	score := 0
 
 	for piece := P; piece <= k; piece++ {

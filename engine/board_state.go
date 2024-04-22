@@ -90,6 +90,10 @@ func (bs *BoardState) MakeMove(move EncodedMove, moveFlag uint8) bool {
 		return false
 	}
 
+	if move == NoMove {
+		return false
+	}
+
 	copyBs := bs.copy()
 
 	source := move.getSourceSquare()

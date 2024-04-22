@@ -22,3 +22,6 @@ go.work
 
 # lichess-bot
 lichess-bot/
+
+# executable
+popebot/popebot

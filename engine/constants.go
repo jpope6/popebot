@@ -80,6 +80,8 @@ const (
 	// NoEpSquare will be num squares + 1
 	NoSquare = 64
 
+	NoMove = 0
+
 	// Encoding move constants
 	SourceSquareHex = 0x3F
 	TargetSquareHex = 0xFC0
