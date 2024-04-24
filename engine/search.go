@@ -17,7 +17,7 @@ func (bs *BoardState) negamax(
 	depth, alpha, beta int, ply *int, nodes *Nodes,
 ) (int, EncodedMove) {
 	if depth == 0 {
-		return bs.quiescense(alpha, beta, ply), NoMove
+		return bs.quiescense(alpha, beta, ply, nodes), NoMove
 	}
 
 	*nodes++
@@ -27,6 +27,13 @@ func (bs *BoardState) negamax(
 	legalMoves := 0
 
 	moves := GenerateAllMoves(bs)
+	moves.sortMoves(bs)
+
+	isInCheck := bs.isKingInCheck()
+
+	if isInCheck {
+		depth++
+	}
 
 	for _, move := range moves.MoveList {
 		if move == NoMove {
@@ -46,8 +53,8 @@ func (bs *BoardState) negamax(
 
 		score, _ := bs.negamax(depth-1, -beta, -alpha, ply, nodes)
 		score = -score
-		bs.restore(copyBs)
 		*ply--
+		bs.restore(copyBs)
 
 		if score >= beta {
 			return beta, NoMove
@@ -64,7 +71,7 @@ func (bs *BoardState) negamax(
 
 	// Checkmate or Stalemate
 	if legalMoves == 0 {
-		if bs.isKingInCheck() {
+		if isInCheck {
 			// Checkmate score
 			return math.MinInt32 + 1000 + *ply, NoMove
 		} else {
@@ -80,7 +87,8 @@ func (bs *BoardState) negamax(
 	return alpha, NoMove
 }
 
-func (bs *BoardState) quiescense(alpha, beta int, ply *int) int {
+func (bs *BoardState) quiescense(alpha, beta int, ply *int, nodes *Nodes) int {
+	*nodes++
 	evaluation := bs.Evaluate()
 
 	if evaluation >= beta {
@@ -92,6 +100,7 @@ func (bs *BoardState) quiescense(alpha, beta int, ply *int) int {
 	}
 
 	moves := GenerateAllMoves(bs)
+	moves.sortMoves(bs)
 
 	for _, move := range moves.MoveList {
 		if move == NoMove {
@@ -107,7 +116,7 @@ func (bs *BoardState) quiescense(alpha, beta int, ply *int) int {
 			continue
 		}
 
-		score := -bs.quiescense(-beta, -alpha, ply)
+		score := -bs.quiescense(-beta, -alpha, ply, nodes)
 		bs.restore(copyBs)
 		*ply--
 

@@ -30,6 +30,16 @@ func (moves *Moves) addMove(
 	moves.Count++
 }
 
+func (moves *Moves) sortMoves(bs *BoardState) {
+	movesScores := make([]int, moves.Count)
+
+	for i := 0; i < moves.Count; i++ {
+		movesScores[i] = moves.MoveList[i].ScoreMove(bs)
+	}
+
+	quickSort(moves, movesScores, 0, moves.Count-1)
+}
+
 func GenerateAllMoves(bs *BoardState) *Moves {
 	var moves Moves = Moves{}
 

@@ -268,3 +268,27 @@ func pieceToString(pieceType uint8) string {
 
 	return ""
 }
+
+// QUICK SORT IMPLEMENTATION. O(nlog(n)) btw
+func partition(moves *Moves, scores []int, low, high int) int {
+	pivot := scores[high]
+	i := low - 1
+	for j := low; j < high; j++ {
+		if scores[j] > pivot {
+			i++
+			moves.MoveList[i], moves.MoveList[j] = moves.MoveList[j], moves.MoveList[i]
+			scores[i], scores[j] = scores[j], scores[i]
+		}
+	}
+	moves.MoveList[i+1], moves.MoveList[high] = moves.MoveList[high], moves.MoveList[i+1]
+	scores[i+1], scores[high] = scores[high], scores[i+1]
+	return i + 1
+}
+
+func quickSort(moves *Moves, scores []int, low, high int) {
+	if low < high {
+		pivot := partition(moves, scores, low, high)
+		quickSort(moves, scores, low, pivot-1)
+		quickSort(moves, scores, pivot+1, high)
+	}
+}

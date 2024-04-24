@@ -30,6 +30,40 @@ func (move Move) encodeMove() EncodedMove {
 	return encoded
 }
 
+func (move *EncodedMove) ScoreMove(bs *BoardState) int {
+	if move.isCapture() {
+		var attacker uint8 = move.getPiece()
+		var target uint8 = Pawn
+
+		var start uint8
+		var end uint8
+
+		switch bs.Turn {
+		case White:
+			start = p
+			end = k
+		case Black:
+			start = P
+			end = K
+		}
+
+		for piece := start; piece <= end; piece++ {
+			pieceColor := piece / 6
+			pieceType := piece % 6
+
+			// If there is a piece on target square, that is the target piece
+			if bs.Position.Pieces[pieceColor][pieceType].GetBit(move.getTargetSquare()) {
+				target = piece
+				break
+			}
+		}
+
+		return MvvLva[attacker%6][target%6]
+	}
+
+	return 0
+}
+
 func (move EncodedMove) getSourceSquare() uint8 {
 	return uint8(move & SourceSquareHex)
 }
