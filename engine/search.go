@@ -11,6 +11,7 @@ func (bs *BoardState) Search(depth int) {
 	_, bestMove := bs.negamax(depth, math.MinInt32, math.MaxInt32, &ply, &nodes)
 
 	fmt.Printf("bestmove %s\n", bestMove.toUciMove())
+	// fmt.Printf("Nodes: %d\n", nodes)
 }
 
 func (bs *BoardState) negamax(
@@ -27,7 +28,7 @@ func (bs *BoardState) negamax(
 	legalMoves := 0
 
 	moves := GenerateAllMoves(bs)
-	moves.sortMoves(bs)
+	moves.sortMoves(bs, ply)
 
 	isInCheck := bs.isKingInCheck()
 
@@ -35,7 +36,7 @@ func (bs *BoardState) negamax(
 		depth++
 	}
 
-	for _, move := range moves.MoveList {
+	for i, move := range moves.MoveList {
 		if move == NoMove {
 			continue
 		}
@@ -57,12 +58,18 @@ func (bs *BoardState) negamax(
 		bs.restore(copyBs)
 
 		if score >= beta {
+			// Store killer moves
+			killerMoves[1][*ply] = killerMoves[0][*ply]
+			killerMoves[0][*ply] = moves.MoveList[i]
+
 			return beta, NoMove
 		}
 
 		if score > alpha {
-			alpha = score
+			// Store history moves
+			historyMoves[move.getPiece()][move.getTargetSquare()] += depth
 
+			alpha = score
 			if *ply == 0 {
 				bestMove = move
 			}
@@ -100,7 +107,7 @@ func (bs *BoardState) quiescense(alpha, beta int, ply *int, nodes *Nodes) int {
 	}
 
 	moves := GenerateAllMoves(bs)
-	moves.sortMoves(bs)
+	moves.sortMoves(bs, ply)
 
 	for _, move := range moves.MoveList {
 		if move == NoMove {
@@ -134,6 +141,7 @@ func (bs *BoardState) quiescense(alpha, beta int, ply *int, nodes *Nodes) int {
 
 func (bs *BoardState) Evaluate() int {
 	score := 0
+	isEnd := bs.IsEndgame()
 
 	for piece := P; piece <= k; piece++ {
 		pieceColor := piece / 6
@@ -144,7 +152,7 @@ func (bs *BoardState) Evaluate() int {
 			square := bb.GetLsbIndex()
 
 			score += mgMaterialScore[piece]
-			score += getMgPsqtScore(piece, square)
+			score += getMgPsqtScore(piece, square, isEnd)
 
 			bb.PopBit(square)
 		}
@@ -158,32 +166,64 @@ func (bs *BoardState) Evaluate() int {
 	return score * multiplier
 }
 
-func getMgPsqtScore(piece, square uint8) int {
-	switch piece {
-	case P:
-		return mgPawnTable[mirrorScore[square]]
-	case N:
-		return mgKnightTable[mirrorScore[square]]
-	case B:
-		return mgBishopTable[mirrorScore[square]]
-	case R:
-		return mgRookTable[mirrorScore[square]]
-	case Q:
-		return mgQueenTable[mirrorScore[square]]
-	case K:
-		return mgKingTable[mirrorScore[square]]
-	case p:
-		return -mgPawnTable[square]
-	case n:
-		return -mgKnightTable[square]
-	case b:
-		return -mgBishopTable[square]
-	case r:
-		return -mgRookTable[square]
-	case q:
-		return -mgQueenTable[square]
-	case k:
-		return -mgKingTable[square]
+func getMgPsqtScore(piece, square uint8, isEndgame bool) int {
+	if isEndgame {
+
+		switch piece {
+		case P:
+			return egPawnTable[mirrorScore[square]]
+		case N:
+			return egKnightTable[mirrorScore[square]]
+		case B:
+			return egBishopTable[mirrorScore[square]]
+		case R:
+			return egRookTable[mirrorScore[square]]
+		case Q:
+			return egQueenTable[mirrorScore[square]]
+		case K:
+			return egKingTable[mirrorScore[square]]
+		case p:
+			return -egPawnTable[square]
+		case n:
+			return -egKnightTable[square]
+		case b:
+			return -egBishopTable[square]
+		case r:
+			return -egRookTable[square]
+		case q:
+			return -egQueenTable[square]
+		case k:
+			return -egKingTable[square]
+		}
+
+	} else {
+
+		switch piece {
+		case P:
+			return mgPawnTable[mirrorScore[square]]
+		case N:
+			return mgKnightTable[mirrorScore[square]]
+		case B:
+			return mgBishopTable[mirrorScore[square]]
+		case R:
+			return mgRookTable[mirrorScore[square]]
+		case Q:
+			return mgQueenTable[mirrorScore[square]]
+		case K:
+			return mgKingTable[mirrorScore[square]]
+		case p:
+			return -mgPawnTable[square]
+		case n:
+			return -mgKnightTable[square]
+		case b:
+			return -mgBishopTable[square]
+		case r:
+			return -mgRookTable[square]
+		case q:
+			return -mgQueenTable[square]
+		case k:
+			return -mgKingTable[square]
+		}
 	}
 
 	return 0

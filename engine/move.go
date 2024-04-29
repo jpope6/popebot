@@ -1,5 +1,12 @@
 package engine
 
+// https://www.chessprogramming.org/Killer_Heuristic
+var killerMoves [2][64]EncodedMove
+
+// https://www.chessprogramming.org/History_Heuristic
+// https://www.chessprogramming.org/Relative_History_Heuristic
+var historyMoves [12][64]int
+
 type Move struct {
 	Source         uint8
 	Target         uint8
@@ -30,7 +37,7 @@ func (move Move) encodeMove() EncodedMove {
 	return encoded
 }
 
-func (move *EncodedMove) ScoreMove(bs *BoardState) int {
+func (move *EncodedMove) ScoreMove(bs *BoardState, ply *int) int {
 	if move.isCapture() {
 		var attacker uint8 = move.getPiece()
 		var target uint8 = Pawn
@@ -58,10 +65,20 @@ func (move *EncodedMove) ScoreMove(bs *BoardState) int {
 			}
 		}
 
-		return MvvLva[attacker%6][target%6]
-	}
+		return MvvLva[attacker%6][target%6] + 10000
 
-	return 0
+	} else { // Non capture move
+
+		switch *move {
+		case killerMoves[0][*ply]:
+			return 9000
+		case killerMoves[1][*ply]:
+			return 8000
+		default:
+			return historyMoves[move.getPiece()][move.getTargetSquare()]
+
+		}
+	}
 }
 
 func (move EncodedMove) getSourceSquare() uint8 {

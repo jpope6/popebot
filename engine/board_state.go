@@ -259,6 +259,54 @@ func (bs *BoardState) isKingInCheck() bool {
 	return false
 }
 
+// Engame is when:
+//  1. Both sides have no queens
+//  2. Every side which has a queen has additionally
+//     no other pieces or one minor piece maximum.
+//
+// https://www.chessprogramming.org/Simplified_Evaluation_Function
+func (bs *BoardState) IsEndgame() bool {
+	// No queen on either side
+	if bs.Position.Pieces[White][Queen] == 0 && bs.Position.Pieces[Black][Queen] == 0 {
+		return true
+	}
+
+	isEnd := false
+
+	for color := White; color <= Black; color++ {
+		count := 0
+
+		// Has queen and no rooks
+		if bs.Position.Pieces[color][Queen] != 0 && bs.Position.Pieces[color][Rook] == 0 {
+			var bb Bitboard
+
+			// Count knights
+			bb = bs.Position.Pieces[color][Knight]
+			for bb != 0 {
+				bb.PopBit(bb.GetLsbIndex())
+				count += 1
+			}
+
+			// Count Bishops
+			bb = bs.Position.Pieces[color][Bishop]
+			for bb != 0 {
+				bb.PopBit(bb.GetLsbIndex())
+				count += 1
+			}
+
+			isEnd = count <= 1
+
+			// If one side has a queen and more than one minor piece,
+			// it is not the end game
+			if count > 1 {
+				break
+			}
+		}
+	}
+
+	return isEnd
+}
+
 func (bs *BoardState) copy() *BoardState {
 	var copyBs *BoardState = &BoardState{
 		Position:     bs.Position,
