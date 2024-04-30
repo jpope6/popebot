@@ -259,7 +259,6 @@ func (moves *Moves) generateCastlingMoves(bs *BoardState) {
 }
 
 // Returns true if the square is currently attacked, else False
-// NOTE: we do not check Queens because bishop and rook essentially does it already
 func isSquareAttacked(bs *BoardState, square uint8) bool {
 	bb := &bs.Position.Pieces
 
