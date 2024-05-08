@@ -151,8 +151,8 @@ func (bs *BoardState) Evaluate() int {
 		for bb != 0 {
 			square := bb.GetLsbIndex()
 
-			score += mgMaterialScore[piece]
-			score += getMgPsqtScore(piece, square, isEnd)
+			score += getMaterialScore(piece, isEnd)
+			score += getPsqtScore(piece, square, isEnd)
 
 			bb.PopBit(square)
 		}
@@ -166,7 +166,15 @@ func (bs *BoardState) Evaluate() int {
 	return score * multiplier
 }
 
-func getMgPsqtScore(piece, square uint8, isEndgame bool) int {
+func getMaterialScore(piece uint8, isEndgame bool) int {
+	if isEndgame {
+		return egMaterialScore[piece]
+	}
+
+	return mgMaterialScore[piece]
+}
+
+func getPsqtScore(piece, square uint8, isEndgame bool) int {
 	if isEndgame {
 
 		switch piece {
