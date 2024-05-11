@@ -1,6 +1,8 @@
-# popebot
+# Popebot
 
-<img src="popebot.png" alt="Logo" width="400" height="400">
+<div style="text-align:center;">
+    <img src="popebot.png" alt="Logo" width="200" height="200">
+</div>
 
 ## Overview
 Popebot is a UCI compatible chess engine written entirely in Golang. This project is a work in progress and is not yet completed, but if you would like to do play it you can do so [here](https://lichess.org/@/popebot).
