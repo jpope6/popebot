@@ -23,7 +23,7 @@ Each piece is assigned a predefined score reflecting its value and importance in
 
 ## Search
 
-The search algorithm is the core of the chessbot's decision-making process. The negamax algorithm with alpha-beta pruning is employed, along with the MVV/LVA (Most Valuable Victim/Least Valuable Attacker) heuristic.
+The search algorithm is the core of the chessbot's decision-making process. The bot uses the negamax algorithm with alpha-beta pruning, along with the MVV/LVA (Most Valuable Victim/Least Valuable Attacker) heuristic.
 
 Negamax is a variant of the minimax algorithm, using recursive tree traversal to explore all possible moves and evaluate every position. Unlike minimax, negamax does not switch between minimum and maximum scores; it seeks the best score on each turn. Alpha-beta pruning is used to reduce the number of nodes traversed by tracking alpha and beta values and pruning branches that will not affect the final result.
 
